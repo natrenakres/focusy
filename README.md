@@ -8,7 +8,7 @@ Seans bittiginde 1 pomodoro isaretlemek ve tamamlanan görevi kaydetmek.
 5 dakikalik bir ara vermek.
 Dört pomodorodan sonra 15 dakikalik bir uzun ara vermek. 
 
-### Planlam
+### Planlama
 
 1. Kactane Pomodoroya ihtiyacin var?
 2. Birtane pomodoryu 25 dakika yap.

@@ -12,6 +12,7 @@
     --color-teritary: #EF5B5B;
     --color-light: #FDFDFD;
     --color-dark: #23001E;
+    --color-light-gray: hsl(309 100 7 / 36%);
     --ff-sans: "Roboto", sans-serif;
     --heading-h1: 500 3rem/1.2 var(--ff-sans);
     --heading-h2: 500 2rem/1.2 var(--ff-sans);
@@ -19,6 +20,7 @@
     --text-paragraph: 1rem/1.5 var(--ff-sans);
     --text-paragraph-bold: 700 var(--text-paragraph);
     --text-small:400 0.875/1.5  var(--ff-sans);
+    --text-small-bold:700 0.875/1.5  var(--ff-sans);
     --text-timer: 700 6.25rem/4.5rem var(--ff-sans);
     --sapcing1: 4px;
     --sapcing2: 8px;
