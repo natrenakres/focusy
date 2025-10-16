@@ -11,8 +11,9 @@
     --color-secondary: #FFBA49;
     --color-teritary: #EF5B5B;
     --color-light: #FDFDFD;
+    --color-light-gray: hsl(309 100 7 / 36%);    
     --color-dark: #23001E;
-    --color-light-gray: hsl(309 100 7 / 36%);
+    --color-gray: #A4A9AD;
     --ff-sans: "Roboto", sans-serif;
     --heading-h1: 500 3rem/1.2 var(--ff-sans);
     --heading-h2: 500 2rem/1.2 var(--ff-sans);
@@ -109,6 +110,7 @@ header {
     display: flex;    
     justify-content: space-between;
     padding: var(--sapcing3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 nav {
