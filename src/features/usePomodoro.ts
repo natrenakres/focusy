@@ -1,5 +1,5 @@
-import { ref, computed, watch } from "vue";
-import { useCountdown, useStorage } from "@vueuse/core";
+import { computed, watch } from "vue";
+import { useTimestamp, useStorage } from "@vueuse/core";
 
 export const ONE_POMODORO_COUNT = 4;
 
@@ -23,11 +23,12 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
     const statePomodoro = useStorage<PomodoroState>("pomodoro:state", "pomodoro");
     const completedPomodoro = useStorage<number>("pomodoro:completed", 0);
 
+    const timestamp = useTimestamp({ interval: 1000 });
     const startedAt = useStorage<number | null>("pomodoro:startedAt", null);
-    const persistedRemaining = useStorage<number | null>("pomodoro:remaining", null);
+    const pausedRemaining = useStorage<number | null>("pomodoro:pausedRemaining", null);
 
 
-    const currentDuration = computed(()=> {
+    const duration = computed(()=> {
         switch(statePomodoro.value) {
             case "shortBreak":
                 return settings.shortBreakTimeSec;
@@ -37,85 +38,73 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
                 return settings.pomodoroTimeSec
         }
     });
-    const { remaining, start, stop, pause, resume } = useCountdown(currentDuration.value, { 
-        onComplete() {
-            handleComplete();
+    
+    const remaining = computed(()=> {
+        if(status.value === "stop") return duration.value;
+        if(status.value === "pause" && pausedRemaining.value != null)  return pausedRemaining.value;
+        if(startedAt.value){
+            const elapsed = Math.floor(timestamp.value-startedAt.value) / 1000;
+            return Math.max(duration.value - elapsed, 0);
         }
-    });
-
-
-    const now = Date.now();
-    if(startedAt.value && status.value === "start") {
-        const elapsedSec = Math.floor(now-startedAt.value) / 1000;
-        const remainingSec = Math.max(0, (persistedRemaining.value ?? currentDuration.value));
-
-        if(remainingSec <= 0) {
-            handleComplete();
-        } else {
-            remaining.value = remainingSec;
-            start(remainingSec);
-        }
-    } else if(persistedRemaining.value) {
-        remaining.value = persistedRemaining.value;
-    }
-
-    watch(remaining, (val) => persistedRemaining.value = Math.floor(val));
-    watch(statePomodoro, () => {        
-        remaining.value = currentDuration.value
-        persistedRemaining.value = currentDuration.value;
-    });
+        return duration.value;
+    })
 
     const formattedTime = computed(() => {
         const r = Math.max(0, Math.floor(remaining.value));
-        const min = String(Math.floor(r / 60)).padStart(2, "0");
-        const sec = String(r % 60).padStart(2, "0");
-        return `${min}:${sec}`;
+        const minutes = Math.floor(r/60);
+        const seconds = r % 60;        
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     });
 
-    function handleComplete(){
-        stopPomodoro();
-        if(statePomodoro.value === "pomodoro") {
-            incrementPomodoro();
+    
+
+    watch(remaining, (val) => {
+        if(status.value === "start" && val <= 0) {
+            nextState();
         }
-        nextState();
-    }
+    });    
 
     function nextState(){
         if(statePomodoro.value === "pomodoro") {
+            incrementPomodoro();
             statePomodoro.value = completedPomodoro.value % ONE_POMODORO_COUNT === 0 ? "longBreak" : "shortBreak";
         } else {
             statePomodoro.value = "pomodoro";
         }
+        stopPomodoro();
     }
-
-
-
 
 
     function startPomodoro(){
-        status.value = "start";
         startedAt.value = Date.now();
-        remaining.value = currentDuration.value;
-        persistedRemaining.value = currentDuration.value;
-        start(currentDuration.value);
+        pausedRemaining.value = null;
+        status.value = "start";        
+    }
+
+
+    function pausePomodoro() {
+        pausedRemaining.value = remaining.value;
+        startedAt.value = null;        
+        status.value = "pause";        
     }
 
     function resumePomodoro() {
-        status.value = "start";
-        startedAt.value = Date.now();
-        resume();
+        if(pausedRemaining.value != null) {
+            startedAt.value = Date.now()-(duration.value-pausedRemaining.value)*1000;
+        } else {
+            pausedRemaining.value = null;
+            status.value = "start";
+        }
     }
 
-    function pausePomodoro() {
-        status.value = "pause";
-        pause();
-    }
 
     function stopPomodoro() {
-        status.value = "stop";
         startedAt.value = null;
-        stop();
+        pausedRemaining.value = null;
+        status.value = "stop";
+        
     }
+
 
     function handlePomodoroToggle() {
         const actions = {
