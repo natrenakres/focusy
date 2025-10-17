@@ -1,8 +1,6 @@
 <script lang="ts" setup>    
     import usePomodoro from "../features/usePomodoro";    
     const { status, statePomodoro, formattedTime, handlePomodoroToggle, nextState } = usePomodoro();    
-
-    
 </script>
 
 <template>
@@ -13,12 +11,12 @@
             <button :class="statePomodoro === 'longBreak' ? 'pomodoro-timer__active' : ''">Long Break</button>
         </header>
         <div class="pomodoro-timer__time-container">
-            <span class="pomodoro-timer__timer">{{ formattedTime }}</span>            
+            <span class="pomodoro-timer__timer">{{ formattedTime }}</span>
         </div>
         <div class="pomodor-timer__footer">
             <button @click="handlePomodoroToggle" :class="statePomodoro !== 'pomodoro' ? 'button-break' : ''">
-                {{ status === "start" ? "PAUSE" :  "START" }}                
-            </button>            
+                {{ status === "start" ? "PAUSE" :  "START"}}
+            </button>
             <button v-if="status === 'start'" class="pomodoro-timer__forward" @click="nextState">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-skip-forward-icon lucide-skip-forward"><path d="M21 4v16"/><path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z"/></svg>
             </button>
