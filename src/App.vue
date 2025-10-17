@@ -2,6 +2,12 @@
   import TheFooter from './layout/TheFooter.vue';
   import PomodoroTimer from './components/PomodoroTimer.vue';
   import TaskItem from './components/TaskItem.vue';
+  import CreateTaskButton from './components/CreateTaskButton.vue';
+  import useTaskStore from './stores/useTaskStore';
+
+  const { taskList } = useTaskStore();
+
+  
 </script>
 
 <template>  
@@ -20,8 +26,9 @@
   </header>
   <main>
     <PomodoroTimer />
+    <CreateTaskButton />
     <div class="task-list">
-        <TaskItem />
+        <TaskItem v-for="task in taskList" :task="task" />
     </div>
   </main>
   <TheFooter />  
