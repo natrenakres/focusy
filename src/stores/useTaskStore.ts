@@ -1,4 +1,5 @@
-import { computed, ref, type Ref } from "vue";
+import { computed, type Ref } from "vue";
+import { useStorage } from "@vueuse/core";
 
 export type TaskStatus = 'not_started' | 'in_progress' | 'completed'
 export interface Task {
@@ -16,7 +17,7 @@ export interface Task {
 
 
 
-const taskList: Ref<Task[]> = ref<Task[]>([]);
+const taskList: Ref<Task[]> = useStorage<Array<Task>>('task-list', []);
 
 export default function useTaskStore() {
     const taskCount = computed(() => taskList.value.length)

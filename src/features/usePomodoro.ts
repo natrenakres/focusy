@@ -1,5 +1,6 @@
 import { computed, watch } from "vue";
 import { useTimestamp, useStorage } from "@vueuse/core";
+import useWebNotification, { type NotificationOption } from "./useWebNotification";
 
 export const ONE_POMODORO_COUNT = 4;
 
@@ -26,6 +27,8 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
     const timestamp = useTimestamp({ interval: 1000 });
     const startedAt = useStorage<number | null>("pomodoro:startedAt", null);
     const pausedRemaining = useStorage<number | null>("pomodoro:pausedRemaining", null);
+
+    const { notify } = useWebNotification();
 
 
     const duration = computed(()=> {
@@ -64,15 +67,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         }
     });    
 
-    function nextState(){
-        if(statePomodoro.value === "pomodoro") {
-            incrementPomodoro();
-            statePomodoro.value = completedPomodoro.value % ONE_POMODORO_COUNT === 0 ? "longBreak" : "shortBreak";
-        } else {
-            statePomodoro.value = "pomodoro";
-        }
-        stopPomodoro();
-    }
+    
 
 
     function startPomodoro(){
@@ -103,7 +98,32 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         pausedRemaining.value = null;
         status.value = "stop";
         
+    }  
+
+    function getNotificationContent(state: PomodoroState) {
+        switch(state) {
+            case "longBreak":
+                return {
+                    title: "Long Break ☕️", 
+                    body: "You finished a full cycle! Time for a long rest.", 
+                    icon: ""
+                };
+            case "shortBreak":
+                return {
+                    title: "Short Break 🏃‍♂️", 
+                    body:  "Pomodoro done! Take a short break.", 
+                    icon: ""
+                };
+            default:
+                return {
+                    title: "Focus Time 🍅", 
+                    body: "Back to work! Start your next Pomodor", 
+                    icon: ""
+                };
+        }
     }
+
+    
 
 
     function handlePomodoroToggle() {
@@ -119,6 +139,17 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
 
     function incrementPomodoro() {
         completedPomodoro.value++;
+    }
+
+    function nextState(){
+        if(statePomodoro.value === "pomodoro") {
+            incrementPomodoro();
+            statePomodoro.value = completedPomodoro.value % ONE_POMODORO_COUNT === 0 ? "longBreak" : "shortBreak";
+        } else {
+            statePomodoro.value = "pomodoro";            
+        }
+        stopPomodoro();        
+        notify(getNotificationContent(statePomodoro.value));
     }
 
     return {
