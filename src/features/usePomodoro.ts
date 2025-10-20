@@ -100,7 +100,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         
     }  
 
-    function getNotificationContent(state: PomodoroState) {
+    function getNotificationContent(state: PomodoroState): NotificationOption {
         switch(state) {
             case "longBreak":
                 return {
