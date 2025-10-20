@@ -12,17 +12,7 @@
 
 <template>  
   <header>
-    <h1 class="logo">Focusy</h1>
-    <nav>
-      <ul>
-        <li>
-          <a href="#">Pomodoro</a>
-        </li>
-        <li>
-          <a href="#">TextDif</a>
-        </li>
-      </ul>
-    </nav>
+    <h1 class="logo">Focusy</h1>    
   </header>
   <main>
     <PomodoroTimer />

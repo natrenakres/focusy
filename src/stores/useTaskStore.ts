@@ -11,6 +11,7 @@ export interface Task {
     isActive: boolean;
     isCompleted: boolean;
     status: TaskStatus;
+    type: "work" | "side" | "personal" | "none"
 }
 
 

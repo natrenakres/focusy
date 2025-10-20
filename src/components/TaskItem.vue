@@ -8,12 +8,7 @@
         task: Task
     }>();
     
-    let isOpen = ref(false);
-    const isAddDescription = ref<boolean>(false);
-
-    function handleAddDescription(){
-        isAddDescription.value = !isAddDescription.value;
-    }
+    let isOpen = ref(false); 
     
     function setIsActive() {
         task.isActive = !task.isActive;        
@@ -32,6 +27,15 @@
         isOpen.value = open;
     }
 
+    function handleTaskStatus() {
+        const classList = [];
+        console.log(task.type);
+        if(task.isActive) classList.push('active')
+        if(task.type !== "none") classList.push(task.type);
+
+        return classList.join(' ');
+    }
+
    
 
 </script>
@@ -40,7 +44,7 @@
 <template>
     <Transition name="expand">
         <a v-if="!isOpen" key="closed" class="task-item__container" 
-            :class="task.isActive ? 'active' : ''" 
+            :class="handleTaskStatus()"
             @click="setIsActive"
             >
             <button class="task-item__complete-btn"
@@ -68,10 +72,6 @@
 
 <style lang="css">
 
-
-
-
-
 .task-item__container {
     display: flex;
     align-items: center;
@@ -79,6 +79,7 @@
     width: 346px;
     border: solid 1px;
     border-radius: var(--sapcing1);
+    border-right-width: 2px;
     gap: var(--sapcing1);
     padding: var(--sapcing1) var(--sapcing2); 
     cursor: pointer;
@@ -94,6 +95,17 @@
     
     &.active {
         box-shadow: inset 3px 0 0 var(--color-dark);
+    }
+
+    &.work {
+        border-right-color: chartreuse;        
+    }
+
+    &.personal {
+        border-right-color: violet;
+    }
+    &.side{
+        border-right-color: cornflowerblue;
     }
 
 }

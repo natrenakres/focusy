@@ -1,12 +1,13 @@
 <script setup lang="ts">        
     import { ref } from 'vue';
-import type { Task } from '../stores/useTaskStore';
+    import type { Task } from '../stores/useTaskStore';
     import useTaskStore from '../stores/useTaskStore';  
     interface TaskFormData {
         title: string
         description?: string    
         estimatedPomodoroCount: number;
         pomodoroCount?: number;
+        type: "work" | "side" | "personal" | "none"
     }
 
     const { createNewTask, deleteTask } = useTaskStore();
@@ -19,14 +20,15 @@ import type { Task } from '../stores/useTaskStore';
         title: task?.title ?? '',
         description: task?.description,
         estimatedPomodoroCount: task?.estimatedPomodoroCount ?? 1,
-        pomodoroCount: task?.pomodoroCount
+        pomodoroCount: task?.pomodoroCount,
+        type: task?.type ?? "none"
     })
 
     const emit = defineEmits(['update:open']);
 
     function handleSave(){        
         emit("update:open", false);        
-        const { title, description, estimatedPomodoroCount, pomodoroCount } = taskForm.value;
+        const { title, type, description, estimatedPomodoroCount, pomodoroCount } = taskForm.value;
         if(!task)
             createNewTask({
                 title,
@@ -35,12 +37,14 @@ import type { Task } from '../stores/useTaskStore';
                 pomodoroCount,
                 isActive: false,
                 isCompleted: false,
+                type
             })        
         else {
             task.title = title;
             task.estimatedPomodoroCount = estimatedPomodoroCount;
             task.pomodoroCount = pomodoroCount;
             task.description = description;
+            task.type = type;
         }
     }
 
@@ -58,6 +62,12 @@ import type { Task } from '../stores/useTaskStore';
     function handleDescription(){
         isDescOpen.value = !isDescOpen.value;
     }
+    function removeDescription() {
+        isDescOpen.value = false;
+        if(taskForm) {
+            taskForm.value.description = undefined;
+        }
+    }
 
     function handleIcrement(){
         taskForm.value.estimatedPomodoroCount++;
@@ -67,19 +77,15 @@ import type { Task } from '../stores/useTaskStore';
         if(+taskForm.value.estimatedPomodoroCount > 1) 
             taskForm.value.estimatedPomodoroCount--;
     }
-
-
-
-
 </script>
 
 <template>
     <form @submit.prevent="handleSave">
-        <div key="open" class="task-item__open-container">        
+        <div key="open" class="task-item-form__container">        
             <input type="text" v-model="taskForm.title"  required/> 
-            <div class="task-item__open-pomodoro-count">
+            <div class="pomodoro-count">
                 <h3>Act/Est Pomodoro</h3>
-                <div class="task-item__open-pomodoro-select">
+                <div class="pomodoro-select">
                     <input type="number" min="1" max="9999" v-if="task" v-model="taskForm.pomodoroCount"  required/>
                     <span v-if="task">/</span> 
                     <input type="number" v-model="taskForm.estimatedPomodoroCount" /> 
@@ -92,18 +98,24 @@ import type { Task } from '../stores/useTaskStore';
                 </div>
             </div>
                 <textarea v-if="isDescOpen" rows="3" v-model="taskForm.description" />
-                <div class="task-item__open-content">
-                    <button  type="button" @click="handleDescription">
+                <div class="content">
+                    <button v-if="!isDescOpen"  type="button" @click="handleDescription">
                         +
                         Add Description
                     </button>
-                    <button type="button" >
-                        +
-                        Add to Project
+                    <button v-else type="button" @click="removeDescription">
+                        -
+                        Remove Description
                     </button>
+                    <select v-model="taskForm.type">                        
+                        <option value="none">Select a task Type</option>
+                        <option value="work">Work</option>
+                        <option value="side">Side Project</option>
+                        <option value="personal">Personal</option>
+                    </select>
                 </div>
                 
-                <div class="task-item__open-footer">
+                <div class="footer">
                     <button type="button" class="delete-btn" @click="handleDelete">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
@@ -125,7 +137,7 @@ import type { Task } from '../stores/useTaskStore';
 <style lang="css">
     
 
-.task-item__open-container{
+.task-item-form__container{
     border: solid 1px var(--color-dark);
     border-radius: var(--sapcing1);
     display: flex;
@@ -146,22 +158,31 @@ import type { Task } from '../stores/useTaskStore';
         outline: none;
     }
 
-    .task-item__open-pomodoro-count{
+    & input {
+        width: 100%;
+        border-radius: var(--sapcing1);
+        height: 2rem;        
+    }
+
+    & select {
+        border-radius: var(--sapcing1);
+        text-align: center;
+    }
+
+    .pomodoro-count{
         display: flex;
         flex-direction: column;
         gap: var(--sapcing1);
         padding: 0;
         margin: 0;
 
-        .task-item__open-pomodoro-select{
+        .pomodoro-select{
             display: flex;
             align-items: center;
             gap: var(--sapcing2);
             
-            & input {                
-                border-radius: var(--sapcing2);                
-                width: 4rem;
-                height: 2rem;                
+            & input {
+                width: 4rem;                
                 text-align: center;
             }
 
@@ -178,10 +199,11 @@ import type { Task } from '../stores/useTaskStore';
         }
     }    
 
-    .task-item__open-content {
+    .content {
         display: flex;
         gap: var(--sapcing2);
         padding: 0;
+        justify-content: space-between;
 
         & button {
             background-color: transparent;
@@ -198,7 +220,7 @@ import type { Task } from '../stores/useTaskStore';
         }
     }
 
-    .task-item__open-footer{
+    .footer{
         display: flex;
         justify-content: space-between;
 
