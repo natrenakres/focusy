@@ -1,0 +1,1 @@
+Henüz karar verilmemis fikirler.

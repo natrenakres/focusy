@@ -1,5 +1,22 @@
 # Focusy App
 
+## Amac
+
+Repo'yu ilk acan insan yada AI projeyi anlamali.
+
+Icerik:
+
+- Focusy nedir?
+- Hedef kullanici
+- V1 hedefi
+- Dokümentasyon linkleri
+
+Burasi vitrin detaya girmeyecez. 
+
+
+
+
+
 ## Pomodoro Timer
 
 Varsayilan olarak isi 25 dakika uzunlugunda kisa mololara ayirir. Önce Proje olusturulup yapilacaklar listesi hazirlanir. 
