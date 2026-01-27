@@ -1,18 +1,11 @@
 <script setup lang="ts">
     import { ref } from 'vue';  
-    import TaskItemForm from './TaskItemForm.vue';    
-    
-
+    import TaskItemForm from './TaskItemForm.vue';
     const isOpen = ref<boolean>(false);
-    
     
     function handleClick(){
         isOpen.value = !isOpen.value;
     }
-
-
-
-
 </script>
 
 <template>
