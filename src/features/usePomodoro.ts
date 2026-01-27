@@ -1,7 +1,7 @@
 import { computed, watch } from "vue";
-import { useTimestamp, useStorage } from "@vueuse/core";
-import useWebNotification, { type NotificationOption } from "./useWebNotification";
-
+import { useTimestamp, useStorage, useWebNotification } from "@vueuse/core";
+import { useSound } from "@vueuse/sound";
+import WarnSound from "@/assets/sounds/warning.wav";
 export const ONE_POMODORO_COUNT = 4;
 
 type PomodoroStatus = "start" | "pause" | "stop";
@@ -15,9 +15,9 @@ interface PomodoroConfig  {
 
 export default function usePomodoro(config?: Partial<PomodoroConfig>){
     const settings: PomodoroConfig = {
-        pomodoroTimeSec: config?.longBreakTimeSec ?? 25 * 60,
-        shortBreakTimeSec: config?.shortBreakTimeSec ?? 5 * 60,
-        longBreakTimeSec: config?.longBreakTimeSec ?? 15*60        
+        pomodoroTimeSec: config?.longBreakTimeSec ?? .1 * 60,
+        shortBreakTimeSec: config?.shortBreakTimeSec ?? 0.1 * 60,
+        longBreakTimeSec: config?.longBreakTimeSec ?? 0.1*60        
     }
 
     const status = useStorage<PomodoroStatus>("pomodoro:status", "stop");
@@ -28,7 +28,23 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
     const startedAt = useStorage<number | null>("pomodoro:startedAt", null);
     const pausedRemaining = useStorage<number | null>("pomodoro:pausedRemaining", null);
 
-    const { notify } = useWebNotification();
+    const { show, onError, isSupported } = useWebNotification({
+                    title: "Focus Time 🍅, Back to work! Start your next Pomodor", 
+                    dir: "auto",
+                    renotify: true,
+                    lang: "en",
+                    tag: "pomodoro-notification"
+                });
+
+    
+
+    const { play } = useSound(WarnSound, { volume: 0.5, interrupt: true, onend: () => {
+        console.info('Sound ended!')
+    } });
+
+    onError((e) => {
+        console.error("Notification error:", e);
+    });
 
 
     const duration = computed(()=> {
@@ -86,8 +102,9 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
     function resumePomodoro() {
         if(pausedRemaining.value != null) {
             startedAt.value = Date.now()-(duration.value-pausedRemaining.value)*1000;
-        } else {
+            status.value = "start";
             pausedRemaining.value = null;
+        } else {
             status.value = "start";
         }
     }
@@ -100,26 +117,31 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         
     }  
 
-    function getNotificationContent(state: PomodoroState): NotificationOption {
+    async function handleNotification(state: PomodoroState) {
+        console.log("Handling notification is supported:", isSupported.value);
         switch(state) {
             case "longBreak":
-                return {
-                    title: "Long Break ☕️", 
-                    body: "You finished a full cycle! Time for a long rest.", 
-                    icon: ""
-                };
+                await show({
+                    title: "Long Break ☕️, You finished a full cycle! Time for a long rest.", 
+                    dir: "auto",
+                    renotify: true,
+                    tag: "pomodoro-notification"
+                });
+                play();
+            break;            
             case "shortBreak":
-                return {
-                    title: "Short Break 🏃‍♂️", 
-                    body:  "Pomodoro done! Take a short break.", 
-                    icon: ""
-                };
+                await show({
+                    title: "Short Break 🏃‍♂️, Pomodoro done! Take a short break.", 
+                    dir: "auto",
+                    renotify: true,
+                    tag: "pomodoro-notification"
+                });
+                play();
+            break;            
             default:
-                return {
-                    title: "Focus Time 🍅", 
-                    body: "Back to work! Start your next Pomodor", 
-                    icon: ""
-                };
+                await show();
+                play();
+            break;
         }
     }
 
@@ -134,6 +156,9 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         } as const;
 
         const action = actions[status.value];
+
+        console.log("Handling action for status:", status.value);
+
         if(action) action();
     }
 
@@ -141,15 +166,21 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         completedPomodoro.value++;
     }
 
-    function nextState(){
+    async function nextState(){
         if(statePomodoro.value === "pomodoro") {
             incrementPomodoro();
             statePomodoro.value = completedPomodoro.value % ONE_POMODORO_COUNT === 0 ? "longBreak" : "shortBreak";
         } else {
             statePomodoro.value = "pomodoro";            
         }
-        stopPomodoro();        
-        notify(getNotificationContent(statePomodoro.value));
+        stopPomodoro();
+        status.value = "stop";
+        
+        await handleNotification(statePomodoro.value)
+        
+        
+        
+        
     }
 
     return {
