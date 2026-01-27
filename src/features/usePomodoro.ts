@@ -15,9 +15,9 @@ interface PomodoroConfig  {
 
 export default function usePomodoro(config?: Partial<PomodoroConfig>){
     const settings: PomodoroConfig = {
-        pomodoroTimeSec: config?.longBreakTimeSec ?? .1 * 60,
-        shortBreakTimeSec: config?.shortBreakTimeSec ?? 0.1 * 60,
-        longBreakTimeSec: config?.longBreakTimeSec ?? 0.1*60        
+        pomodoroTimeSec: (config?.pomodoroTimeSec ?? .1) * 60,
+        shortBreakTimeSec: (config?.shortBreakTimeSec ?? 0.1) * 60,
+        longBreakTimeSec: (config?.longBreakTimeSec ?? 0.1) * 60        
     }
 
     const status = useStorage<PomodoroStatus>("pomodoro:status", "stop");
@@ -28,8 +28,9 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
     const startedAt = useStorage<number | null>("pomodoro:startedAt", null);
     const pausedRemaining = useStorage<number | null>("pomodoro:pausedRemaining", null);
 
-    const { show, onError, isSupported } = useWebNotification({
-                    title: "Focus Time 🍅, Back to work! Start your next Pomodor", 
+    const { show, close, onError, isSupported } = useWebNotification({
+                    title: "Focus Time 🍅",
+                    body: "Back to work! Start your next Pomodor", 
                     dir: "auto",
                     renotify: true,
                     lang: "en",
@@ -122,7 +123,8 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         switch(state) {
             case "longBreak":
                 await show({
-                    title: "Long Break ☕️, You finished a full cycle! Time for a long rest.", 
+                    title: "Long Break ☕️", 
+                    body: "You finished a full cycle! Time for a long rest.",
                     dir: "auto",
                     renotify: true,
                     tag: "pomodoro-notification"
@@ -131,7 +133,8 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
             break;            
             case "shortBreak":
                 await show({
-                    title: "Short Break 🏃‍♂️, Pomodoro done! Take a short break.", 
+                    title: "Short Break 🏃‍♂️", 
+                    body: "Pomodoro done! Take a short break.",
                     dir: "auto",
                     renotify: true,
                     tag: "pomodoro-notification"
@@ -139,7 +142,14 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
                 play();
             break;            
             default:
-                await show();
+                await show({
+                    title: "Focus Time 🍅",
+                    body: "Back to work! Start your next Pomodor",
+                    dir: "auto",
+                    renotify: true,
+                    lang: "en",
+                    tag: "pomodoro-notification"
+                });
                 play();
             break;
         }
@@ -158,7 +168,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         const action = actions[status.value];
 
         console.log("Handling action for status:", status.value);
-
+        close();
         if(action) action();
     }
 
@@ -167,6 +177,11 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
     }
 
     async function nextState(){
+        await handleState();        
+        await handleNotification(statePomodoro.value);
+    }
+    
+    async function handleState(){
         if(statePomodoro.value === "pomodoro") {
             incrementPomodoro();
             statePomodoro.value = completedPomodoro.value % ONE_POMODORO_COUNT === 0 ? "longBreak" : "shortBreak";
@@ -174,14 +189,10 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
             statePomodoro.value = "pomodoro";            
         }
         stopPomodoro();
-        status.value = "stop";
-        
-        await handleNotification(statePomodoro.value)
-        
-        
-        
+        status.value = "stop";        
         
     }
+
 
     return {
         // state
@@ -190,6 +201,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         formattedTime,
         // action        
         handlePomodoroToggle,        
-        nextState        
+        nextState,
+        handleState      
     };
 }

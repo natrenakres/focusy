@@ -1,6 +1,6 @@
 
 
-import { ref, type Ref } from 'vue';
+import { type Ref } from 'vue';
 import { useStorage } from '@vueuse/core';
 
 export type SessionStatus =
