@@ -9,10 +9,8 @@ export interface Task {
     projectId?: string;
     estimatedPomodoroCount: number;
     pomodoroCount?: number;
-    isActive: boolean;
-    isCompleted: boolean;
-    status: TaskStatus;
-    type: "work" | "side" | "personal" | "none"
+    isActive: boolean;    
+    status: TaskStatus;    
 }
 
 
