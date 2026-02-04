@@ -72,9 +72,9 @@
                 </div>
                 <p v-if="task.description" class="text-sm text-gray-400 mt-1"> {{ task.description }}</p>
             </div>
-            <button class="flex w-4 h-8 bg-transparent border border-indigo-500 text-gray-900 items-center justify-center" @click.stop="handleOpen" >
-                <IconDotsVertical size="20" />
-            </button>        
+            <Button @click.stop="handleOpen" variant="outline" size="icon" aria-label="Edit Task">
+                <IconDotsVertical />
+            </Button>        
         </a>
         <TaskItemForm v-else :task="task" @update:open="callback"  />        
     </Transition>
