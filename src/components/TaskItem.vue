@@ -4,6 +4,7 @@
     import TaskItemForm from './TaskItemForm.vue';
     import { IconCircleCheck, IconDotsVertical } from '@tabler/icons-vue';
     import Button from './ui/button/Button.vue';
+    import { Card, CardContent } from './ui/card';
 
 
     const { task } = defineProps<{
@@ -57,25 +58,26 @@
       leave-active-class="transition-all duration-300 ease-in-out overflow-hidden"
       leave-to-class="opacity-0 max-h-0"
     >
-        <a v-if="!isOpen" key="closed" 
-            class="flex items-center justify-between w-86.5 border border-solid border-r-2 rounded-md gap-2 py-2 px-3 cursor-pointer text-gray-900 m-0 hover:shadow-inner hover:no-underline" 
+        <Card v-if="!isOpen" key="closed" 
+            class="w-86.5 gap-2 py-2 px-3 cursor-pointer" 
             :class="handleTaskStatus()"
-            @click="setIsActive"
-            >
-            <Button @click.stop="setIsCompleted" variant="outline" size="icon" aria-label="Complete Task">
-                <IconCircleCheck size="20" />
-            </Button>
-            <div class="flex-1 flex flex-col" :class="{ 'line-through text-gray-400': isCompleted }">
-                <div class="flex items-center gap-3">
-                    <h4 class="text-sm font-semibold">{{ task.title }}</h4>   
-                    <p class="text-sm text-gray-400 m-0">{{task.pomodoroCount}}<span v-if="task.pomodoroCount">&nbsp;/&nbsp;</span>{{ task.estimatedPomodoroCount }}</p>
+            @click="setIsActive">
+            <CardContent class="flex items-center gap-3 p-0">
+                <Button @click.stop="setIsCompleted" variant="outline" size="icon" aria-label="Complete Task">
+                    <IconCircleCheck />
+                </Button>
+                <div class="flex-1 flex flex-col" :class="{ 'line-through text-gray-400': isCompleted }">
+                    <div class="flex items-center gap-3">
+                        <h4 class="text-sm font-semibold">{{ task.title }}</h4>   
+                        <p class="text-sm text-gray-400 m-0">{{task.pomodoroCount}}<span v-if="task.pomodoroCount">&nbsp;/&nbsp;</span>{{ task.estimatedPomodoroCount }}</p>
+                    </div>
+                    <p v-if="task.description" class="text-sm text-gray-400 mt-1"> {{ task.description }}</p>
                 </div>
-                <p v-if="task.description" class="text-sm text-gray-400 mt-1"> {{ task.description }}</p>
-            </div>
-            <Button @click.stop="handleOpen" variant="outline" size="icon" aria-label="Edit Task">
-                <IconDotsVertical />
-            </Button>        
-        </a>
+                <Button @click.stop="handleOpen" variant="outline" size="icon" aria-label="Edit Task">
+                    <IconDotsVertical />
+                </Button>        
+            </CardContent>
+        </Card>
         <TaskItemForm v-else :task="task" @update:open="callback"  />        
     </Transition>
 </template>
