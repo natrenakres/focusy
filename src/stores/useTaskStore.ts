@@ -33,17 +33,13 @@ export default function useTaskStore() {
         return newTask;
     }
 
-    function deleteTask(id?: string) {
-        if(!id) return;
-        taskList.value = taskList.value.filter(t => t.id !== id);
-    }
+    
     
 
     return {
         taskList,
         taskCount,
         //actions       
-        createNewTask,
-        deleteTask
+        createNewTask,        
     }
 }

@@ -9,17 +9,33 @@ import    { useProjectsStore } from '@/stores/useProjectsStore';
 import Separator from './ui/separator/Separator.vue';
 import SidebarGroupLabel from './ui/sidebar/SidebarGroupLabel.vue';
 import Button from './ui/button/Button.vue';
+import { ref } from 'vue';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import CreateProjectForm from './CreateProjectForm.vue';
 const { projectList, selectedProjectId, setSelectedProject } = useProjectsStore();
+
+const open = ref(false);
+
 </script>
 
 <template>
 <SidebarGroup>
     <SidebarGroupLabel class="flex justify-between ">
         <span>Projects</span>
-        <Button size="icon"  variant="outline">
-            <IconPlus />
-            <span class="sr-only">Inbox</span>
-        </Button>
+        <Dialog v-model:open="open">
+            <DialogTrigger as-child>
+                <Button size="icon"  variant="outline">
+                    <IconPlus />
+                    <span class="sr-only">Add new project</span>
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>New Project</DialogTitle>
+                </DialogHeader>
+                <CreateProjectForm @update:open="(state: boolean) => open = state" />
+            </DialogContent>
+        </Dialog>
     </SidebarGroupLabel>
     <SidebarGroupContent class="flex flex-col gap-2">        
         <Separator />

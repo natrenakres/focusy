@@ -2,9 +2,10 @@
 import { ref } from 'vue';
 import { useForm } from "@tanstack/vue-form"
 import type { Task } from '../stores/useTaskStore';
-import useTaskStore from '../stores/useTaskStore';
-import { file, z } from "zod";
+import { useProjectsStore } from '@/stores/useProjectsStore';
+import { z } from "zod";
 import { IconTrash, IconCheck, IconPlus, IconMinus } from "@tabler/icons-vue"
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from './ui/alert-dialog';
 
 import { Card } from './ui/card';
 import CardContent from './ui/card/CardContent.vue';
@@ -21,10 +22,20 @@ import { Textarea } from './ui/textarea';
 import CardFooter from './ui/card/CardFooter.vue';
 import Button from './ui/button/Button.vue';
 
+const useProjects = useProjectsStore();
+const { deleteTaskFromProject, addTaskToProject } = useProjects;
+
+interface TaskFormData {
+    title: string
+    description?: string
+    estimatedPomodoroCount: number;
+    pomodoroCount?: number;
+}
+
 const { task } = defineProps<{
     task?: Task,
 }>();
-
+const emit = defineEmits(['update:open']);
 const TaskFormSchema = z.object({
     title: z.string().min(1, "Title is required"),
     description: z.string(),
@@ -36,56 +47,32 @@ const form = useForm({
     defaultValues: {
         title: task?.title ?? '',
         estimatedPomodoroCount: task?.estimatedPomodoroCount ?? 1,
-        pomodoroCount: task?.pomodoroCount ?? 0,        
+        pomodoroCount: task?.pomodoroCount ?? 0,
         description: task?.description ?? '',
     },
     validators: {
         onSubmit: TaskFormSchema
     },
-    onSubmit: async ({ value }) => {
-        console.log("Form Submitted with values:", value);
-        // Handle form submission logic here
+    onSubmit: async ({ value } : {value: TaskFormData}) => {        
+        handleSave(value);
     }
 });
+
 function isInvalid(field: any) {
     return field.state.meta.isTouched && !field.state.meta.isValid
 }
 
-
-
-// OLD LOGIC
-
-interface TaskFormData {
-    title: string
-    description?: string
-    estimatedPomodoroCount: number;
-    pomodoroCount?: number;
-}
-
-const { createNewTask, deleteTask } = useTaskStore();
-
-
-
-const taskForm = ref<TaskFormData>({
-    title: task?.title ?? '',
-    description: task?.description,
-    estimatedPomodoroCount: task?.estimatedPomodoroCount ?? 1,
-    pomodoroCount: task?.pomodoroCount,
-})
-
-const emit = defineEmits(['update:open']);
-
-function handleSave() {
+function handleSave(value: TaskFormData) {
     emit("update:open", false);
-    const { title, description, estimatedPomodoroCount, pomodoroCount } = taskForm.value;
-    if (!task)
-        createNewTask({
+    const { title, description, estimatedPomodoroCount, pomodoroCount } = value;
+    if (!task)        
+        addTaskToProject({            
             title,
             description,
             estimatedPomodoroCount,
-            pomodoroCount,
-            isActive: false,
-        })
+            pomodoroCount,            
+            isActive: false
+        });
     else {
         task.title = title;
         task.estimatedPomodoroCount = estimatedPomodoroCount;
@@ -94,9 +81,9 @@ function handleSave() {
     }
 }
 
-function handleDelete() {
+function handleDelete() {    
+    deleteTaskFromProject(task?.id);
     emit("update:open", false);
-    deleteTask(task?.id);
 }
 
 const isDescOpen = ref<boolean>(task?.description !== undefined);
@@ -109,19 +96,7 @@ function handleDescription() {
     isDescOpen.value = !isDescOpen.value;
 }
 function removeDescription() {
-    isDescOpen.value = false;
-    if (taskForm) {
-        taskForm.value.description = undefined;
-    }
-}
-
-function handleIcrement() {
-    taskForm.value.estimatedPomodoroCount++;
-}
-
-function handleDecrement() {
-    if (+taskForm.value.estimatedPomodoroCount > 1)
-        taskForm.value.estimatedPomodoroCount--;
+    isDescOpen.value = false;    
 }
 </script>
 
@@ -143,12 +118,11 @@ function handleDecrement() {
                             </Field>
                         </template>
                     </form.Field>
-                    <Card class="py-0">                        
+                    <Card class="py-0">
                         <CardContent class="grid grid-cols-2 px-1">
                             <form.Field name="pomodoroCount">
                                 <template #default="{ field }">
-                                    <NumberField 
-                                        :model-value="field.state.value" 
+                                    <NumberField :model-value="field.state.value"
                                         @update:model-value="field.handleChange" :id="field.name" :min="0" :max="99">
                                         <Label>Actual Pomodoro</Label>
                                         <NumberFieldContent>
@@ -161,9 +135,9 @@ function handleDecrement() {
                             </form.Field>
                             <form.Field name="estimatedPomodoroCount">
                                 <template #default="{ field }">
-                                    <NumberField  
-                                    :model-value="field.state.value" 
-                                    @update:model-value="field.handleChange" :id="field.name" :default-value="1" :min="1" :max="99">
+                                    <NumberField :model-value="field.state.value"
+                                        @update:model-value="field.handleChange" :id="field.name" :default-value="1"
+                                        :min="1" :max="99">
                                         <Label>Estimated Pomodoro</Label>
                                         <NumberFieldContent>
                                             <NumberFieldDecrement />
@@ -185,21 +159,22 @@ function handleDecrement() {
                         <CardContent>
                             <form.Field name="description">
                                 <template #default="{ field }">
-                                    <Field :data-invalid="isInvalid(field)">    
+                                    <Field :data-invalid="isInvalid(field)">
                                         <FieldLabel :for="field.name">
                                             Description
                                         </FieldLabel>
                                         <Textarea :id="field.name" :model-value="field.state.value"
                                             @input="field.handleChange($event.target.value)" :name="field.name"
-                                            autocomplete="off" class="w-full rounded-sm" :aria-invalid="isInvalid(field)" />
+                                            autocomplete="off" class="w-full rounded-sm"
+                                            :aria-invalid="isInvalid(field)" />
                                         <FieldError v-if="isInvalid(field)" :errors="field.state.meta.errors" />
                                     </Field>
-                                </template> 
-                            </form.Field>                            
+                                </template>
+                            </form.Field>
                         </CardContent>
                     </Card>
                     <div class="flex gap-2 justify-between">
-                        <Button v-if="!isDescOpen"  @click="handleDescription" variant="secondary">
+                        <Button v-if="!isDescOpen" @click="handleDescription" variant="secondary">
                             <IconPlus />
                             Add Description
                         </Button>
@@ -210,10 +185,23 @@ function handleDecrement() {
                     </div>
                 </FieldGroup>
             </CardContent>
-            <CardFooter class="flex justify-between">
-                <Button @click="handleDelete" variant="destructive" size="icon">
-                    <IconTrash />
-                </Button>
+            <CardFooter class="flex" :class="task ? 'justify-between' : 'justify-end'">                 
+                <AlertDialog v-if="task">   
+                    <AlertDialogTrigger as-child>
+                        <Button variant="destructive" size="icon">
+                            <IconTrash />
+                        </Button>
+                        </AlertDialogTrigger>
+                    <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure to Delete Task?</AlertDialogTitle>                        
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction class="bg-accent hover:bg-accent/85" @click="handleDelete">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
                 <div class="flex gap-2">
                     <Button @click.stop="handleCancel" variant="secondary">
                         Cancel

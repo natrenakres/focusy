@@ -8,8 +8,6 @@ import ProjectContent from './components/ProjectContent.vue';
 
 const { projectList, selectedProject } = useProjectsStore();
 
-
-
 </script>
 
 <template>  
@@ -25,10 +23,3 @@ const { projectList, selectedProject } = useProjectsStore();
     </SidebarInset>
   </SidebarProvider>
 </template>
-
-<style lang="css">
-
-.task-list {
-  padding: var(--sapcing3) 0; 
-}
-</style>

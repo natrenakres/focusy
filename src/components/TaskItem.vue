@@ -59,7 +59,7 @@
       leave-to-class="opacity-0 max-h-0"
     >
         <Card v-if="!isOpen" key="closed" 
-            class="w-86.5 gap-2 py-2 px-3 cursor-pointer" 
+            class="w-86.5 h-14 gap-2 py-2 px-3 cursor-pointer" 
             :class="handleTaskStatus()"
             @click="setIsActive">
             <CardContent class="flex items-center gap-3 p-0">

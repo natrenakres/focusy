@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {IconInnerShadowTop} from "@tabler/icons-vue"
-import { SidebarMenuButton } from './ui/sidebar';
+import { SidebarFooter, SidebarMenuButton } from './ui/sidebar';
 import Sidebar from './ui/sidebar/Sidebar.vue';
 import SidebarHeader from './ui/sidebar/SidebarHeader.vue';
 import SidebarMenu from './ui/sidebar/SidebarMenu.vue';
@@ -8,11 +8,12 @@ import SidebarMenuItem from './ui/sidebar/SidebarMenuItem.vue';
 import SidebarContent from './ui/sidebar/SidebarContent.vue';
 import NavProjects from './NavProjects.vue';
 import Separator from "./ui/separator/Separator.vue";
+import AppSettings from './AppSettings.vue';
 
 </script>
 
 <template>
-    <Sidebar>
+    <Sidebar collapsible="icon" >
         <SidebarHeader class="shadow-md bg-background text-primary">
             <SidebarMenu>
                 <SidebarMenuItem>
@@ -31,6 +32,9 @@ import Separator from "./ui/separator/Separator.vue";
         <SidebarContent>
             <NavProjects  />
         </SidebarContent>
+        <SidebarFooter>
+            <AppSettings />
+        </SidebarFooter>
     </Sidebar>
 
 </template>
