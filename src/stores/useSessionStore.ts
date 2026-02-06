@@ -1,6 +1,3 @@
-
-
-import { type Ref } from 'vue';
 import { useStorage } from '@vueuse/core';
 import { useAppSettings } from "@/stores/useAppSettingsStore"
 
@@ -25,26 +22,13 @@ export interface FocusSession {
     isActive: boolean;
 }
 
-const CURRENT_SESSION_KEY = 'current-session';
-const SESSION_HISTORY_KEY = 'session-history';
-
-
-const currentSession: Ref<FocusSession | null> = useStorage<FocusSession | null>(
-    CURRENT_SESSION_KEY,
-    null
-);
-
-const sessionHistory: Ref<FocusSession[]> = useStorage<FocusSession[]>(
-    SESSION_HISTORY_KEY,
-    []
-);
+const currentSession = useStorage<FocusSession>("focusy:currentSession", {} as FocusSession);
+const sessionHistory = useStorage<FocusSession[]>("focusy:sessionHistory", []);
 
 export default function useSessionStore() {
     const { appSettings } = useAppSettings();
-    // Here you can add methods to manipulate the session data, e.g., startSession, pauseSession, completeSession, etc.
-    function startSession(projectId: string, startTime: number = Date.now()) {
-        console.log('Starting session for project:', projectId, 'at time:', new Date(startTime).toTimeString());
 
+    function startSession(projectId: string, startTime: number = Date.now()) {        
         const session: FocusSession = {
             id: crypto.randomUUID(),
             projectId,
@@ -56,7 +40,7 @@ export default function useSessionStore() {
             isActive: true,
         };
         currentSession.value = session;
-    };
+    }
 
     function completeSession() {
         if (!currentSession.value) return;

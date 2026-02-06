@@ -1,5 +1,6 @@
 import { ref, computed } from "vue";
 import type { Task } from "./useTaskStore";
+import { useStorage } from "@vueuse/core";
 
 export type ProjectType = "work" | "side" | "personal" | "none";
 
@@ -12,9 +13,8 @@ export interface Project {
     tasks: Array<Task>
 }
 
-const projectList = ref<Array<Project>>([]);
+const projectList = useStorage<Array<Project>>("focusy:projects", []);
 
-// selected project state
 const selectedProjectId = ref<string | null>(projectList.value[0]?.id ?? null);
 const selectedProject = computed(() => projectList.value.find(p => p.id === selectedProjectId.value) ?? null);
 function setSelectedProject(id: string) { selectedProjectId.value = id; }
