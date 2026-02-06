@@ -5,7 +5,7 @@ import type { Task } from '../stores/useTaskStore';
 import { useProjectsStore } from '@/stores/useProjectsStore';
 import { z } from "zod";
 import { IconTrash, IconCheck, IconPlus, IconMinus } from "@tabler/icons-vue"
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from './ui/alert-dialog';
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from './ui/alert-dialog';
 
 import { Card } from './ui/card';
 import CardContent from './ui/card/CardContent.vue';
