@@ -1,269 +1,217 @@
-<script setup lang="ts">        
-    import { ref } from 'vue';
-    import type { Task } from '../stores/useTaskStore';
-    import useTaskStore from '../stores/useTaskStore';  
-    interface TaskFormData {
-        title: string
-        description?: string    
-        estimatedPomodoroCount: number;
-        pomodoroCount?: number;
-        type: "work" | "side" | "personal" | "none"
-    }
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useForm } from "@tanstack/vue-form"
+import type { Task } from '../stores/useTaskStore';
+import { useProjectsStore } from '@/stores/useProjectsStore';
+import { z } from "zod";
+import { IconTrash, IconCheck, IconPlus, IconMinus } from "@tabler/icons-vue"
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from './ui/alert-dialog';
 
-    const { createNewTask, deleteTask } = useTaskStore();
+import { Card } from './ui/card';
+import CardContent from './ui/card/CardContent.vue';
+import FieldGroup from './ui/field/FieldGroup.vue';
+import { Field, FieldError, FieldLabel } from './ui/field';
+import { Input } from './ui/input';
+import CardHeader from './ui/card/CardHeader.vue';
+import CardTitle from './ui/card/CardTitle.vue';
+import { NumberField, NumberFieldContent, NumberFieldIncrement } from './ui/number-field';
+import Label from './ui/label/Label.vue';
+import NumberFieldDecrement from './ui/number-field/NumberFieldDecrement.vue';
+import NumberFieldInput from './ui/number-field/NumberFieldInput.vue';
+import { Textarea } from './ui/textarea';
+import CardFooter from './ui/card/CardFooter.vue';
+import Button from './ui/button/Button.vue';
 
-    const { task } =  defineProps<{
-        task?: Task,        
-    }>();
+const useProjects = useProjectsStore();
+const { deleteTaskFromProject, addTaskToProject } = useProjects;
 
-    const taskForm = ref<TaskFormData>({
+interface TaskFormData {
+    title: string
+    description?: string
+    estimatedPomodoroCount: number;
+    pomodoroCount?: number;
+}
+
+const { task } = defineProps<{
+    task?: Task,
+}>();
+const emit = defineEmits(['update:open']);
+const TaskFormSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    description: z.string(),
+    estimatedPomodoroCount: z.number().min(1, "Estimated Pomodoro Count must be at least 1"),
+    pomodoroCount: z.number().min(0, "Pomodoro Count must be at least 0"),
+});
+
+const form = useForm({
+    defaultValues: {
         title: task?.title ?? '',
-        description: task?.description,
         estimatedPomodoroCount: task?.estimatedPomodoroCount ?? 1,
-        pomodoroCount: task?.pomodoroCount,
-        type: task?.type ?? "none"
-    })
-
-    const emit = defineEmits(['update:open']);
-
-    function handleSave(){        
-        emit("update:open", false);        
-        const { title, type, description, estimatedPomodoroCount, pomodoroCount } = taskForm.value;
-        if(!task)
-            createNewTask({
-                title,
-                description,                        
-                estimatedPomodoroCount,
-                pomodoroCount,
-                isActive: false,
-                isCompleted: false,
-                type
-            })        
-        else {
-            task.title = title;
-            task.estimatedPomodoroCount = estimatedPomodoroCount;
-            task.pomodoroCount = pomodoroCount;
-            task.description = description;
-            task.type = type;
-        }
+        pomodoroCount: task?.pomodoroCount ?? 0,
+        description: task?.description ?? '',
+    },
+    validators: {
+        onSubmit: TaskFormSchema
+    },
+    onSubmit: async ({ value } : {value: TaskFormData}) => {        
+        handleSave(value);
     }
+});
 
-    function handleDelete() {
-        emit("update:open", false);
-        deleteTask(task?.id);
-    }
+function isInvalid(field: any) {
+    return field.state.meta.isTouched && !field.state.meta.isValid
+}
 
-    const isDescOpen = ref<boolean>(task?.description !== undefined);
+function handleSave(value: TaskFormData) {
+    emit("update:open", false);
+    const { title, description, estimatedPomodoroCount, pomodoroCount } = value;
+    if (!task)        
+        addTaskToProject({            
+            title,
+            description,
+            estimatedPomodoroCount,
+            pomodoroCount,            
+            isActive: false
+        });
+    else {
+        task.title = title;
+        task.estimatedPomodoroCount = estimatedPomodoroCount;
+        task.pomodoroCount = pomodoroCount;
+        task.description = description;
+    }
+}
 
-    function handleCancel(){
-        emit("update:open", false);
-    }
+function handleDelete() {    
+    deleteTaskFromProject(task?.id);
+    emit("update:open", false);
+}
 
-    function handleDescription(){
-        isDescOpen.value = !isDescOpen.value;
-    }
-    function removeDescription() {
-        isDescOpen.value = false;
-        if(taskForm) {
-            taskForm.value.description = undefined;
-        }
-    }
+const isDescOpen = ref<boolean>(task?.description !== undefined);
 
-    function handleIcrement(){
-        taskForm.value.estimatedPomodoroCount++;
-    }
+function handleCancel() {
+    emit("update:open", false);
+}
 
-    function handleDecrement(){
-        if(+taskForm.value.estimatedPomodoroCount > 1) 
-            taskForm.value.estimatedPomodoroCount--;
-    }
+function handleDescription() {
+    isDescOpen.value = !isDescOpen.value;
+}
+function removeDescription() {
+    isDescOpen.value = false;    
+}
 </script>
 
 <template>
-    <form @submit.prevent="handleSave">
-        <div key="open" class="task-item-form__container">        
-            <input type="text" v-model="taskForm.title"  required/> 
-            <div class="pomodoro-count">
-                <h3>Act/Est Pomodoro</h3>
-                <div class="pomodoro-select">
-                    <input type="number" min="1" max="9999" v-if="task" v-model="taskForm.pomodoroCount"  required/>
-                    <span v-if="task">/</span> 
-                    <input type="number" v-model="taskForm.estimatedPomodoroCount" /> 
-                    <button type="button" @click="handleIcrement">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
-                    </button>                
-                    <button type="button" @click="handleDecrement">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-                    </button>
-                </div>
-            </div>
-                <textarea v-if="isDescOpen" rows="3" v-model="taskForm.description" />
-                <div class="content">
-                    <button v-if="!isDescOpen"  type="button" @click="handleDescription">
-                        +
-                        Add Description
-                    </button>
-                    <button v-else type="button" @click="removeDescription">
-                        -
-                        Remove Description
-                    </button>
-                    <select v-model="taskForm.type">                        
-                        <option value="none">Select a task Type</option>
-                        <option value="work">Work</option>
-                        <option value="side">Side Project</option>
-                        <option value="personal">Personal</option>
-                    </select>
-                </div>
-                
-                <div class="footer">
-                    <button type="button" class="delete-btn" @click="handleDelete">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
-                    <div class="action-btn-container">
-                        <button class="link" @click.stop="handleCancel" >                    
-                            Cancel
-                        </button>
-                        <button  type="submit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
-                            Save
-                        </button>
+    <form @submit.prevent="form.handleSubmit">
+        <Card key="open" class="w-full">
+            <CardContent class="px-1">
+                <FieldGroup>
+                    <form.Field name="title">
+                        <template #default="{ field }">
+                            <Field :data-invalid="isInvalid(field)">
+                                <FieldLabel :for="field.name">
+                                    Title
+                                </FieldLabel>
+                                <Input :id="field.name" :model-value="field.state.value"
+                                    @input="field.handleChange($event.target.value)" :name="field.name"
+                                    autocomplete="off" class="w-full rounded-sm h-8" :aria-invalid="isInvalid(field)" />
+                                <FieldError v-if="isInvalid(field)" :errors="field.state.meta.errors" />
+                            </Field>
+                        </template>
+                    </form.Field>
+                    <Card class="py-0">
+                        <CardContent class="grid grid-cols-2 px-1">
+                            <form.Field name="pomodoroCount">
+                                <template #default="{ field }">
+                                    <NumberField :model-value="field.state.value"
+                                        @update:model-value="field.handleChange" :id="field.name" :min="0" :max="99">
+                                        <Label>Actual Pomodoro</Label>
+                                        <NumberFieldContent>
+                                            <NumberFieldDecrement />
+                                            <NumberFieldInput />
+                                            <NumberFieldIncrement />
+                                        </NumberFieldContent>
+                                    </NumberField>
+                                </template>
+                            </form.Field>
+                            <form.Field name="estimatedPomodoroCount">
+                                <template #default="{ field }">
+                                    <NumberField :model-value="field.state.value"
+                                        @update:model-value="field.handleChange" :id="field.name" :default-value="1"
+                                        :min="1" :max="99">
+                                        <Label>Estimated Pomodoro</Label>
+                                        <NumberFieldContent>
+                                            <NumberFieldDecrement />
+                                            <NumberFieldInput />
+                                            <NumberFieldIncrement />
+                                        </NumberFieldContent>
+                                    </NumberField>
+                                </template>
+                            </form.Field>
+
+                        </CardContent>
+                    </Card>
+                    <Card v-if="isDescOpen">
+                        <CardHeader>
+                            <CardTitle>
+                                Description
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <form.Field name="description">
+                                <template #default="{ field }">
+                                    <Field :data-invalid="isInvalid(field)">
+                                        <FieldLabel :for="field.name">
+                                            Description
+                                        </FieldLabel>
+                                        <Textarea :id="field.name" :model-value="field.state.value"
+                                            @input="field.handleChange($event.target.value)" :name="field.name"
+                                            autocomplete="off" class="w-full rounded-sm"
+                                            :aria-invalid="isInvalid(field)" />
+                                        <FieldError v-if="isInvalid(field)" :errors="field.state.meta.errors" />
+                                    </Field>
+                                </template>
+                            </form.Field>
+                        </CardContent>
+                    </Card>
+                    <div class="flex gap-2 justify-between">
+                        <Button v-if="!isDescOpen" @click="handleDescription" variant="secondary">
+                            <IconPlus />
+                            Add Description
+                        </Button>
+                        <Button v-else type="button" @click="removeDescription" variant="secondary">
+                            <IconMinus />
+                            Remove Description
+                        </Button>
                     </div>
+                </FieldGroup>
+            </CardContent>
+            <CardFooter class="flex" :class="task ? 'justify-between' : 'justify-end'">                 
+                <AlertDialog v-if="task">   
+                    <AlertDialogTrigger as-child>
+                        <Button variant="destructive" size="icon">
+                            <IconTrash />
+                        </Button>
+                        </AlertDialogTrigger>
+                    <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure to Delete Task?</AlertDialogTitle>                        
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction class="bg-accent hover:bg-accent/85" @click="handleDelete">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+                <div class="flex gap-2">
+                    <Button @click.stop="handleCancel" variant="secondary">
+                        Cancel
+                    </Button>
+                    <Button type="submit">
+                        <IconCheck size="16" />
+                        Save
+                    </Button>
                 </div>
-        </div>
+            </CardFooter>
+        </Card>
     </form>
 </template>
-
-
-<style lang="css">
-    
-
-.task-item-form__container{
-    border: solid 1px var(--color-dark);
-    border-radius: var(--sapcing1);
-    display: flex;
-    flex-direction: column;
-    gap: var(--sapcing2);
-    padding: var(--sapcing1) var(--sapcing2);
-    width: 346px;
-
-    & textarea {
-        padding: var(--sapcing2);        
-        font: var(--text-small);
-        background-color: var(--color-light-gray);
-        border-radius: var(--sapcing1);
-        border: 0;        
-    }
-
-    & textarea:focus-visible {
-        outline: none;
-    }
-
-    & input {
-        width: 100%;
-        border-radius: var(--sapcing1);
-        height: 2rem;        
-    }
-
-    & select {
-        border-radius: var(--sapcing1);
-        text-align: center;
-    }
-
-    .pomodoro-count{
-        display: flex;
-        flex-direction: column;
-        gap: var(--sapcing1);
-        padding: 0;
-        margin: 0;
-
-        .pomodoro-select{
-            display: flex;
-            align-items: center;
-            gap: var(--sapcing2);
-            
-            & input {
-                width: 4rem;                
-                text-align: center;
-            }
-
-            & button {
-                display: flex;
-                width: 1rem;
-                height: 1rem;
-                background-color: transparent;
-                border: 1px solid var(--color-primary);
-                color: var(--color-dark);
-                align-items: center;    
-                justify-content: center;
-            }
-        }
-    }    
-
-    .content {
-        display: flex;
-        gap: var(--sapcing2);
-        padding: 0;
-        justify-content: space-between;
-
-        & button {
-            background-color: transparent;
-            color: var(--color-light-gray);
-            margin: 0;
-            padding: 0;
-            border-bottom: 1px solid var(--color-light-gray);
-            border-radius: 0;
-            text-decoration: none;
-
-            &:hover {                
-                color: var(--color-dark);                
-            }
-        }
-    }
-
-    .footer{
-        display: flex;
-        justify-content: space-between;
-
-        .delete-btn{
-            display: flex;
-            align-items: center;
-            width: 24px;
-            height: 24px;
-            color: var(--color-teritary);
-            background-color: transparent;
-            border: 1px solid var(--color-primary);
-        }
-
-        .action-btn-container{
-            display: flex;
-            gap: var(--sapcing4);
-
-            & button {
-                display: flex;
-                align-items: center;               
-            }
-
-            .outline {
-                background-color: transparent;
-                border: 1px solid var(--color-primary);
-                color: var(--color-dark);
-            }
-
-            .link {
-                background-color: transparent;
-                border: 0;
-                margin: 0;
-                color: var(--color-light-gray);                
-                padding: 0;
-                border-radius: 0;
-                text-decoration: underline;
-
-                &:hover{
-                    color: var(--color-dark);
-                }
-            }
-        }
-    }
-    
-}
-</style>

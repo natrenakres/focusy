@@ -9,10 +9,8 @@ export interface Task {
     projectId?: string;
     estimatedPomodoroCount: number;
     pomodoroCount?: number;
-    isActive: boolean;
-    isCompleted: boolean;
-    status: TaskStatus;
-    type: "work" | "side" | "personal" | "none"
+    isActive: boolean;    
+    status: TaskStatus;    
 }
 
 
@@ -35,17 +33,13 @@ export default function useTaskStore() {
         return newTask;
     }
 
-    function deleteTask(id?: string) {
-        if(!id) return;
-        taskList.value = taskList.value.filter(t => t.id !== id);
-    }
+    
     
 
     return {
         taskList,
         taskCount,
         //actions       
-        createNewTask,
-        deleteTask
+        createNewTask,        
     }
 }
