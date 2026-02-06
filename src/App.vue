@@ -6,7 +6,7 @@ import AppHeader from './layout/AppHeader.vue';
 import { useProjectsStore } from './stores/useProjectsStore';
 import ProjectContent from './components/ProjectContent.vue';
 
-const { projectList, selectedProject } = useProjectsStore();
+const { selectedProject } = useProjectsStore();
 
 </script>
 
@@ -16,9 +16,7 @@ const { projectList, selectedProject } = useProjectsStore();
     <SidebarInset>
       <AppHeader />
       <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <ProjectContent 
-            v-if="projectList.length > 0" 
-            :project="selectedProject ?? projectList[0]" />
+          <ProjectContent :project="selectedProject" />
       </div>
     </SidebarInset>
   </SidebarProvider>
