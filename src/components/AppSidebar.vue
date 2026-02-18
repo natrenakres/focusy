@@ -6,7 +6,7 @@ import SidebarHeader from './ui/sidebar/SidebarHeader.vue';
 import SidebarMenu from './ui/sidebar/SidebarMenu.vue';
 import SidebarMenuItem from './ui/sidebar/SidebarMenuItem.vue';
 import SidebarContent from './ui/sidebar/SidebarContent.vue';
-import NavProjects from './NavProjects.vue';
+import ProjectList from './ProjectList.vue';
 import Separator from "./ui/separator/Separator.vue";
 import AppSettings from './AppSettings.vue';
 
@@ -30,7 +30,7 @@ import AppSettings from './AppSettings.vue';
         </SidebarHeader>
         <Separator />
         <SidebarContent>
-            <NavProjects  />
+            <ProjectList  />
         </SidebarContent>
         <SidebarFooter>
             <AppSettings />

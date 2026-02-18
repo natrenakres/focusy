@@ -2,7 +2,8 @@ import { ref, computed } from "vue";
 import type { Task } from "./useTaskStore";
 import { useStorage } from "@vueuse/core";
 
-export type ProjectType = "work" | "side" | "personal" | "none";
+export const projectTypes = ["work", "side", "personal", "none"] as const;
+export type ProjectType = typeof projectTypes[number];
 
 export interface Project {
     id: string;
@@ -39,6 +40,14 @@ export function useProjectsStore() {
         projectList.value.push(newProject);
         selectedProjectId.value = newProject.id;        
         return newProject;
+    }    
+
+    function deleteProject(id?: string) {
+        if(!id)
+            return;
+
+        const updated = projectList.value.filter(p => p.id !== id);
+        projectList.value = updated;
     }
 
     function addTaskToProject(taskData: Omit<Task, 'id' | 'status'>) {        
@@ -62,6 +71,7 @@ export function useProjectsStore() {
         setSelectedProject,
         deleteTaskFromProject,
         createNewProject,
+        deleteProject,
         addTaskToProject
     }
 }

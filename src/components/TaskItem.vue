@@ -1,41 +1,23 @@
 <script lang="ts" setup>
     import { ref, computed } from 'vue';
-    import type { Task } from '../stores/useTaskStore';
-    import TaskItemForm from './TaskItemForm.vue';
+    import type { Task } from '../stores/useTaskStore';    
     import { IconCircleCheck, IconDotsVertical } from '@tabler/icons-vue';
-    import Button from './ui/button/Button.vue';
-    import { Card, CardContent } from './ui/card';
-
+    import Button from './ui/button/Button.vue';    
+    import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from './ui/item';
+    import { Badge } from './ui/badge';
+    import { Dialog, DialogTitle, DialogTrigger, DialogContent, DialogHeader, DialogDescription } from './ui/dialog';
+    import TaskItemForm from './TaskItemForm.vue';
 
     const { task } = defineProps<{
         task: Task
     }>();
     
-    let isOpen = ref(false); 
-    
-    function setIsActive() {
-        task.isActive = !task.isActive;        
-    }    
-
-    function handleOpen() {        
-        isOpen.value = !isOpen.value;
-    }
+    let isOpen = ref(false);     
 
     function callback(open: boolean) {
         isOpen.value = open;
     }
 
-    function handleTaskStatus() {
-        const classList: string[] = [];
-        if (task.isActive) classList.push('border-l-4 border-l-gray-900');
-        // Optional: add right-border accents based on category if present
-        if ((task as any).category === 'work') classList.push('border-r-2 border-r-lime-400');
-        if ((task as any).category === 'personal') classList.push('border-r-2 border-r-fuchsia-500');
-        if ((task as any).category === 'side') classList.push('border-r-2 border-r-sky-400');
-        return classList.join(' ');
-    }
-
-    
     const isCompleted = computed(() => task.status === "completed");
 
     function setIsCompleted() {
@@ -49,35 +31,33 @@
 </script>
 
 
-<template>
-    <Transition
-      enter-from-class="opacity-0 max-h-0"
-      enter-active-class="transition-all duration-300 ease-in-out overflow-hidden"
-      enter-to-class="opacity-100 max-h-[500px]"
-      leave-from-class="opacity-100 max-h-[500px]"
-      leave-active-class="transition-all duration-300 ease-in-out overflow-hidden"
-      leave-to-class="opacity-0 max-h-0"
-    >
-        <Card v-if="!isOpen" key="closed" 
-            class="w-86.5 h-24 gap-2 py-2 px-3 cursor-pointer" 
-            :class="handleTaskStatus()"
-            @click="setIsActive">
-            <CardContent class="flex items-center gap-3 p-0">
-                <Button @click.stop="setIsCompleted" variant="outline" size="icon" aria-label="Complete Task">
-                    <IconCircleCheck />
-                </Button>
-                <div class="flex-1 flex flex-col" :class="{ 'line-through text-gray-400': isCompleted }">
-                    <div class="flex items-center gap-3">
-                        <h4 class="text-sm font-semibold">{{ task.title }}</h4>   
-                        <p class="text-sm text-gray-400 m-0">{{task.pomodoroCount}}<span v-if="task.pomodoroCount">&nbsp;/&nbsp;</span>{{ task.estimatedPomodoroCount }}</p>
-                    </div>
-                    <p v-if="task.description" class="text-sm text-gray-400 mt-1"> {{ task.description }}</p>
-                </div>
-                <Button @click.stop="handleOpen" variant="outline" size="icon" aria-label="Edit Task">
-                    <IconDotsVertical />
-                </Button>        
-            </CardContent>
-        </Card>
-        <TaskItemForm v-else :task="task" @update:open="callback"  />        
-    </Transition>
+<template>   
+    <Item :variant="isCompleted ? 'muted' : 'outline' ">
+        <ItemMedia>
+            <Button @click.stop="setIsCompleted" variant="outline" size="icon" aria-label="Complete Task">
+                <IconCircleCheck />
+            </Button>
+        </ItemMedia>
+        <ItemContent>
+            <ItemTitle>{{ task.title }} <Badge variant="secondary">{{task.pomodoroCount}}</Badge> <Badge>{{ task.estimatedPomodoroCount }}</Badge></ItemTitle>
+            <ItemDescription v-if="task.description">{{ task.description }}</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+            <Dialog v-model:open="isOpen">
+                <DialogTrigger as-child>
+                    <Button variant="outline" size="icon" aria-label="Edit Task">
+                        <IconDotsVertical />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit: {{ task.title }}</DialogTitle>
+                        <DialogDescription>Edit task and save. You can also delete the task from project.</DialogDescription>
+                    </DialogHeader>
+                    <TaskItemForm @update:open="callback" :task="task" />
+                </DialogContent>
+            </Dialog>            
+        </ItemActions>        
+    </Item>        
+    
 </template>

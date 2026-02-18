@@ -6,7 +6,7 @@ import { useProjectsStore } from '@/stores/useProjectsStore';
 import { ButtonGroup } from '@/components/ui/button-group';
 import Button from '@/components/ui/button/Button.vue';
 import  useSessionStore  from '@/stores/useSessionStore';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 const { currentSession, startSession, completeSession, calculateExpectedEndTime } = useSessionStore();
 const { selectedProject } = useProjectsStore();
@@ -34,6 +34,7 @@ const startTime = ref(new Date().toISOString());
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Start Focus Session</DialogTitle>
+                  <DialogDescription>Add your daily focus session start time and calculate it from your daily wrking hours.</DialogDescription>
                 </DialogHeader>                
                 <div class="flex justify-end mt-4 gap-2">
                   <Input 
