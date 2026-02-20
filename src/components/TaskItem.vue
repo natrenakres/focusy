@@ -19,12 +19,18 @@
     }
 
     const isCompleted = computed(() => task.status === "completed");
+    const isActive = computed(()=>  task.isActive);
+
+    function setIsActive() {
+        task.isActive = !task.isActive
+    }
 
     function setIsCompleted() {
         if(task.status === "completed")
             task.status = "not_started"
-        else
-            task.status = "completed"        
+        else {
+            task.status = "completed";            
+        }
     }
    
 
@@ -32,15 +38,19 @@
 
 
 <template>   
-    <Item :variant="isCompleted ? 'muted' : 'outline' ">
+    <Item :variant="isCompleted ? 'muted' : 'outline' " 
+          :class="isActive ? 'border-s-4 border-s-black cursor-pointer' : 'cursor-pointer'" 
+          @click="setIsActive" >
         <ItemMedia>
             <Button @click.stop="setIsCompleted" variant="outline" size="icon" aria-label="Complete Task">
                 <IconCircleCheck />
             </Button>
         </ItemMedia>
         <ItemContent>
-            <ItemTitle>{{ task.title }} <Badge variant="secondary">{{task.pomodoroCount}}</Badge> <Badge>{{ task.estimatedPomodoroCount }}</Badge></ItemTitle>
-            <ItemDescription v-if="task.description">{{ task.description }}</ItemDescription>
+            <ItemTitle :class="isCompleted ? 'line-through' : '' ">{{ task.title }} 
+                <Badge :variant="isCompleted ? 'outline' : 'secondary'">{{task.pomodoroCount}}</Badge> 
+                <Badge :variant="isCompleted ? 'outline' : 'default'">{{ task.estimatedPomodoroCount }}</Badge></ItemTitle>
+            <ItemDescription v-if="task.description" :class="isCompleted ? 'line-through' : ''" >{{ task.description }}</ItemDescription>
         </ItemContent>
         <ItemActions>
             <Dialog v-model:open="isOpen">
