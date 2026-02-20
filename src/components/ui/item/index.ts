@@ -20,6 +20,7 @@ export const itemVariants = cva(
         default: "bg-transparent",
         outline: "border-border",
         muted: "bg-muted/50",
+        completed: 'bg-indigo-500'
       },
       size: {
         default: "p-4 gap-4 ",
