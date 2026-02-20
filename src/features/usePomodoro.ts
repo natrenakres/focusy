@@ -1,5 +1,5 @@
 import { computed, watch } from "vue";
-import { useTimestamp, useStorage, useWebNotification } from "@vueuse/core";
+import { useTimestamp, useStorage, useWebNotification, useTitle } from "@vueuse/core";
 import { useSound } from "@vueuse/sound";
 import WarnSound from "@/assets/sounds/warning.wav";
 export const ONE_POMODORO_COUNT = 4;
@@ -19,7 +19,8 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         shortBreakTimeSec: (config?.shortBreakTimeSec ?? 0.1) * 60,
         longBreakTimeSec: (config?.longBreakTimeSec ?? 0.1) * 60        
     }
-
+    const title = useTitle();
+    console.log("Current title: ", title.value);
     const status = useStorage<PomodoroStatus>("pomodoro:status", "stop");
     const statePomodoro = useStorage<PomodoroState>("pomodoro:state", "pomodoro");
     const completedPomodoro = useStorage<number>("pomodoro:completed", 0);
@@ -78,10 +79,11 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
 
     
 
-    watch(remaining, (val) => {
+    watch(remaining, (val) => {        
         if(status.value === "start" && val <= 0) {
             nextState();
         }
+        title.value = formattedTime.value;
     });    
 
     
@@ -130,6 +132,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
                     tag: "pomodoro-notification"
                 });
                 play();
+                title.value = `Long Break`;
             break;            
             case "shortBreak":
                 await show({
@@ -140,6 +143,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
                     tag: "pomodoro-notification"
                 });
                 play();
+                title.value = `Short Break`;
             break;            
             default:
                 await show({
@@ -151,6 +155,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
                     tag: "pomodoro-notification"
                 });
                 play();
+                title.value = `Focusy ${formattedTime.value}`;
             break;
         }
     }
