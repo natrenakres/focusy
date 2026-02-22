@@ -27,7 +27,7 @@ export function useProjectsStore() {
 
         selectedProject.value.tasks = selectedProject.value.tasks.filter(t => t.id !== taskId);
         
-    }
+    }   
 
     function createNewProject(projectData: Omit<Project, 'id' | 'lastEdited' | 'tasks'>) {
         const newProject: Project = {
@@ -64,6 +64,14 @@ export function useProjectsStore() {
         return newTask;
     }
 
+    function importProjectFormFile(fileMIME: string, data?: string | ArrayBuffer | Blob) {
+        if(data && typeof data === "string" && fileMIME === "application/json")   {
+            projectList.value = JSON.parse(data);
+            selectedProjectId.value = projectList.value[0]?.id ?? null;
+        }
+
+    }
+
     return {
         projectList,
         selectedProjectId,
@@ -72,6 +80,7 @@ export function useProjectsStore() {
         deleteTaskFromProject,
         createNewProject,
         deleteProject,
-        addTaskToProject
+        addTaskToProject,
+        importProjectFormFile
     }
 }

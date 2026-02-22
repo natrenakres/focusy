@@ -5,15 +5,15 @@ import SidebarGroupContent from './ui/sidebar/SidebarGroupContent.vue';
 import SidebarMenu from './ui/sidebar/SidebarMenu.vue';
 import SidebarMenuItem from './ui/sidebar/SidebarMenuItem.vue';
 import SidebarMenuButton from './ui/sidebar/SidebarMenuButton.vue';
-import    { useProjectsStore, type Project } from '@/stores/useProjectsStore';
+import { useProjectsStore, type Project } from '@/stores/useProjectsStore';
 import Separator from './ui/separator/Separator.vue';
 import SidebarGroupLabel from './ui/sidebar/SidebarGroupLabel.vue';
 import { IconEdit } from "@tabler/icons-vue"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import ProjectCreateForm from "./ProjectCreateForm.vue";
 import { Button } from "./ui/button";
-const { projectList, selectedProjectId, setSelectedProject } = useProjectsStore();
 
+const { projectList, selectedProjectId, setSelectedProject } = useProjectsStore();
 const editingProject = ref<Project | null>(null);
 
 function openEdit(project: Project) {
