@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { IconTrash} from "@tabler/icons-vue";
 import { useForm } from '@tanstack/vue-form';
 import { projectTypes, useProjectsStore, type Project, type ProjectType } from '@/stores/useProjectsStore';
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from './ui/alert-dialog';
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, AlertDialogDescription } from './ui/alert-dialog';
 import { Card, CardContent, CardFooter } from './ui/card';
 import { FieldGroup, FieldLabel, FieldError } from './ui/field';
 import { Input } from './ui/input';
@@ -118,7 +118,8 @@ function isInvalid(field: any) {
                         </AlertDialogTrigger>
                     <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure to Delete Task?</AlertDialogTitle>                        
+                        <AlertDialogTitle>Are you absolutely sure to delete the project {{ project.name }}?</AlertDialogTitle>                        
+                        <AlertDialogDescription>Delete permenantyl the project</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>

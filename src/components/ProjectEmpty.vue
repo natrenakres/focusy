@@ -1,22 +1,32 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { IconArrowUpRight, IconFolderCode }  from "@tabler/icons-vue"
+import { useFileSystemAccess } from "@vueuse/core"
 import { Button } from '@/components/ui/button'
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import ProjectCreateForm from "./ProjectCreateForm.vue";
+import { useProjectsStore  } from "@/stores/useProjectsStore";
+
+const { isSupported, data, open, fileMIME } = useFileSystemAccess();
+const { importProjectFormFile } = useProjectsStore();
+
 const openAddProject = ref(false);
 
 function callbackOpenAddProject(state: boolean) {
     openAddProject.value = state;
 }
+
+async function onOpen() {
+  try {    
+    await open();
+    importProjectFormFile(fileMIME.value, data.value);    
+  } 
+  catch(error: unknown) {
+    console.error(error);
+  }
+}
+
 
 </script>
 
@@ -45,13 +55,13 @@ function callbackOpenAddProject(state: boolean) {
                 <ProjectCreateForm @update:open="callbackOpenAddProject" />
             </DialogContent>
         </Dialog>        
-        <Button variant="outline">
+        <Button v-if="isSupported" variant="outline" @click="onOpen">
           Import Project
         </Button>
       </div>
     </EmptyContent>
     <Button variant="link" as-child class="text-muted-foreground" size="sm">
-      <a href="#">
+      <a target="_blank" href="https://github.com/natrenakres/focusy/docs/index.md">
         Learn More <IconArrowUpRight />
       </a>
     </Button>

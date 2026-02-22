@@ -19,8 +19,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         shortBreakTimeSec: (config?.shortBreakTimeSec ?? 0.1) * 60,
         longBreakTimeSec: (config?.longBreakTimeSec ?? 0.1) * 60        
     }
-    const title = useTitle();
-    console.log("Current title: ", title.value);
+    const title = useTitle();    
     const status = useStorage<PomodoroStatus>("pomodoro:status", "stop");
     const statePomodoro = useStorage<PomodoroState>("pomodoro:state", "pomodoro");
     const completedPomodoro = useStorage<number>("pomodoro:completed", 0);
