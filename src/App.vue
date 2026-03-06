@@ -5,6 +5,8 @@ import SidebarProvider from './components/ui/sidebar/SidebarProvider.vue';
 import AppHeader from './layout/AppHeader.vue';
 import { useProjectsStore } from './stores/useProjectsStore';
 import ProjectContent from './components/ProjectContent.vue';
+import { Toaster } from './components/ui/sonner';
+
 
 const { selectedProject } = useProjectsStore();
 
@@ -19,5 +21,6 @@ const { selectedProject } = useProjectsStore();
           <ProjectContent :project="selectedProject" />
       </div>
     </SidebarInset>
+    <Toaster />
   </SidebarProvider>
 </template>

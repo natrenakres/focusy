@@ -2,6 +2,7 @@
     import { ref, computed } from 'vue';
     import type { Task } from '../stores/useTaskStore';    
     import { IconCircleCheck, IconDotsVertical } from '@tabler/icons-vue';
+    import { useProjectsStore } from '@/stores/useProjectsStore';
     import Button from './ui/button/Button.vue';    
     import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from './ui/item';
     import { Badge } from './ui/badge';
@@ -11,6 +12,7 @@
     const { task } = defineProps<{
         task: Task
     }>();
+    const { setActiveTask } = useProjectsStore();
     
     let isOpen = ref(false);     
 
@@ -22,14 +24,16 @@
     const isActive = computed(()=>  task.isActive);
 
     function setIsActive() {
-        task.isActive = !task.isActive
+        if (isCompleted.value) return;
+        setActiveTask(task.id);
     }
 
     function setIsCompleted() {
         if(task.status === "completed")
             task.status = "not_started"
         else {
-            task.status = "completed";            
+            task.status = "completed";
+            task.isActive = false;
         }
     }
    

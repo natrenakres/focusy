@@ -1,9 +1,14 @@
 <script lang="ts" setup>    
     import usePomodoro from "../features/usePomodoro";    
-    const { status, statePomodoro, formattedTime, handlePomodoroToggle, nextState, handleState } = usePomodoro({
+    const emit = defineEmits<{
+        (e: "pomodoro-completed"): void;
+    }>();
+
+    const { status, statePomodoro, formattedTime, handlePomodoroToggle, nextState, setPomodoroState } = usePomodoro({
         pomodoroTimeSec: import.meta.env.VITE_POMODORO_TIME_SEC,
         shortBreakTimeSec: import.meta.env.VITE_SHORT_BREAK_TIME_SEC,
         longBreakTimeSec: import.meta.env.VITE_LONG_BREAK_TIME_SEC,
+        onPomodoroCompleted: () => emit("pomodoro-completed"),
     });    
     import { IconPlayerSkipForward } from "@tabler/icons-vue";
     import Button from "./ui/button/Button.vue";
@@ -12,13 +17,13 @@
 <template>
     <div class="flex flex-col items-center bg-accent max-w-86.5 p-4 text-light text-white rounded-md" :class="statePomodoro !== 'pomodoro' ? 'bg-primary' : ''">    
         <header class="flex gap-1 justify-start">
-            <Button @click="handleState" :class="[
+            <Button @click="setPomodoroState('pomodoro')" :class="[
                 'font-bold p-1 m-1 bg-transparent hover:bg-transparent hover:underline text-sm cursor-pointer',
                 statePomodoro === 'pomodoro' ? 'font-bold bg-gray-200 hover:bg-gray-300 text-black' : '']">Pomodoro</Button>
-            <Button @click="handleState" :class="[
+            <Button @click="setPomodoroState('shortBreak')" :class="[
                 'p-1 m-1 bg-transparent hover:bg-transparent hover:underline text-sm cursor-pointer',
                 statePomodoro === 'shortBreak' ? 'font-bold bg-gray-200 hover:bg-gray-300 text-black' : '']">Short Break</Button>
-            <Button @click="handleState" :class="[
+            <Button @click="setPomodoroState('longBreak')" :class="[
                 'p-1 m-1 bg-transparent hover:bg-transparent hover:underline text-sm cursor-pointer',
                 statePomodoro === 'longBreak' ? 'font-bold bg-gray-200 text-black' : ''
                 ]">Long Break</Button>
