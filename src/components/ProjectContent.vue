@@ -7,12 +7,19 @@ import ProjectToolbar from './ProjectToolbar.vue';
 import TaskItemList from './TaskItemList.vue';
 import { useProjectsStore } from '@/stores/useProjectsStore';
 import ProjectProgress from './ProjectProgress.vue';
+import { Button } from './ui/button';
 
 const props = defineProps<{
     project: Project | undefined | null;
 }>();
 
-const { incrementActiveTaskPomodoro, selectedProjectTotals, selectedProjectProgress } = useProjectsStore();
+const {
+    incrementActiveTaskPomodoro,
+    selectedProjectTotals,
+    selectedProjectProgress,
+    canShowProjectCompletedButton,
+    markProjectCompleted,
+} = useProjectsStore();
 
 function handlePomodoroCompleted() {
     if (!props.project?.id) return;
@@ -22,12 +29,20 @@ function handlePomodoroCompleted() {
 
     toast.warning("No active task selected. Pomodoro was not counted.");
 }
+
+function handleProjectComplete() {
+    if (!props.project?.id) return;
+    markProjectCompleted(props.project.id);
+}
 </script>
 
 <template>
     <div class="flex flex-col gap-4 p-4">
         <template v-if="project">
             <ProjectToolbar />
+            <Button v-if="canShowProjectCompletedButton" class="w-fit" @click="handleProjectComplete">
+                Project Completed
+            </Button>
             <ProjectProgress
                 :total-actual-pomodoros="selectedProjectTotals.totalActualPomodoros"
                 :total-estimated-pomodoros="selectedProjectTotals.totalEstimatedPomodoros"
