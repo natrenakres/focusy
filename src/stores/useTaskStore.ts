@@ -8,7 +8,7 @@ export interface Task {
     description?: string;
     projectId?: string;
     estimatedPomodoroCount: number;
-    pomodoroCount?: number;
+    pomodoroCount: number;
     isActive: boolean;    
     status: TaskStatus;    
 }
@@ -25,7 +25,7 @@ export default function useTaskStore() {
             ...taskData,
             id: `task-${Date.now()}`,
             estimatedPomodoroCount: taskData.estimatedPomodoroCount,
-            pomodoroCount: taskData.pomodoroCount,
+            pomodoroCount: taskData.pomodoroCount ?? 0,
             status: "not_started"
         }
 

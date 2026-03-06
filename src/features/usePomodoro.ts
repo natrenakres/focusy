@@ -11,6 +11,7 @@ interface PomodoroConfig  {
   pomodoroTimeSec: number;
   shortBreakTimeSec: number;
   longBreakTimeSec: number;
+  onPomodoroCompleted?: () => void | Promise<void>;
 }
 
 export default function usePomodoro(config?: Partial<PomodoroConfig>){
@@ -19,6 +20,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         shortBreakTimeSec: (config?.shortBreakTimeSec ?? 0.1) * 60,
         longBreakTimeSec: (config?.longBreakTimeSec ?? 0.1) * 60        
     }
+    const onPomodoroCompleted = config?.onPomodoroCompleted;
     const title = useTitle();    
     const status = useStorage<PomodoroStatus>("pomodoro:status", "stop");
     const statePomodoro = useStorage<PomodoroState>("pomodoro:state", "pomodoro");
@@ -188,6 +190,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
     async function handleState(){
         if(statePomodoro.value === "pomodoro") {
             incrementPomodoro();
+            await onPomodoroCompleted?.();
             statePomodoro.value = completedPomodoro.value % ONE_POMODORO_COUNT === 0 ? "longBreak" : "shortBreak";
         } else {
             statePomodoro.value = "pomodoro";            
@@ -195,6 +198,12 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         stopPomodoro();
         status.value = "stop";        
         
+    }
+
+    function setPomodoroState(nextState: PomodoroState) {
+        statePomodoro.value = nextState;
+        stopPomodoro();
+        title.value = formattedTime.value;
     }
 
 
@@ -206,6 +215,7 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
         // action        
         handlePomodoroToggle,        
         nextState,
-        handleState      
+        handleState,
+        setPomodoroState,
     };
 }

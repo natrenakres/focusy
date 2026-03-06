@@ -29,7 +29,7 @@ interface TaskFormData {
     title: string
     description?: string
     estimatedPomodoroCount: number;
-    pomodoroCount?: number;
+    pomodoroCount: number;
 }
 
 const { task } = defineProps<{
