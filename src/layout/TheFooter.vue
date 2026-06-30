@@ -1,23 +1,31 @@
-<script lang="ts" setup >
-    const year = new Date().getFullYear();
+<script lang="ts" setup>
+const year = new Date().getFullYear();
 </script>
 
 <template>
-    <footer class="flex flex-col p-0">
-    <div class="flex justify-between p-8">
-      <div class="flex items-center justify-center gap-4 p-0">
-        <h2 class="font-medium text-4xl leading-tight text-primary">Focusy</h2>
-        <p class="my-2">Focus your daily job and be eficcient!</p>
-      </div>
-      <div class="flex gap-4 p-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook-icon lucide-facebook w-6 h-6"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-instagram-icon lucide-instagram w-6 h-6"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-twitter-icon lucide-twitter w-6 h-6"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-      </div>
+  <!-- Footer / Contact Section -->
+  <footer
+    class="landing-theme w-full py-12 px-4 md:px-10 flex flex-col md:flex-row justify-between items-center gap-gutter max-w-container-max mx-auto bg-landing-surface-container-low mt-12 border-t border-outline-variant/10"
+    id="contact">
+    <div class="flex flex-col items-center md:items-start gap-4">
+      <div class="font-landing-headline-md text-landing-headline-md font-bold text-landing-primary">Focusy</div>
+      <p class="text-landing-secondary text-landing-body-md text-center md:text-left max-w-xs">Elevating human consciousness through
+        intentional design and deep focus.</p>
     </div>
-    <div class="flex items-center justify-center p-2">
-        <p class="my-2">© {{ year }} Focusy.io</p>
+    <div class="flex flex-col md:flex-row items-center gap-12">
+      <div class="flex gap-8">
+        <a class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
+          href="#">Privacy</a>
+        <a class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
+          href="#">Terms</a>
+        <a class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
+          href="#">Support</a>
+      </div>      
+    </div>
+    <div class="w-full md:w-auto text-center md:text-right">
+      <p class="text-on-secondary-fixed-variant font-landing-label-sm opacity-60">© {{ year }} Focusy. All rights reserved.
+      </p>
     </div>
   </footer>
-  
+
 </template>

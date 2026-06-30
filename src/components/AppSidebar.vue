@@ -20,10 +20,10 @@ import AppSettings from './AppSettings.vue';
                     <SidebarMenuButton 
                         as-child
                         class="data-[slot=sidebar-menu-button]:p-1.5!">
-                        <a href="#">
+                        <RouterLink to="/">
                             <IconInnerShadowTop class="site-5!" />
                             <span class="text-base font-semibold">Focusy</span>
-                        </a>
+                        </RouterLink>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>

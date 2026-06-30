@@ -43,6 +43,58 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Landing color */
+  --color-landing-background: var(--landing-background);
+  --color-landing-primary: var(--landing-primary);
+  --color-landing-primary-container: var(--landing-primary-container);
+  --color-landing-secondary: var(--landing-secondary);
+
+  --color-landing-surface: var(--landing-surface);
+  --color-landing-surface-container: var(--landing-surface-container);
+  --color-landing-surface-container-high: var(--landing-surface-container-high);
+  --color-landing-surface-container-low: var(--landing-surface-container-low);
+  --color-landing-surface-container-highest: var(--landing-surface-container-highest);
+
+  --color-landing-outline: var(--landing-outline);
+  --color-landing-outline-variant: var(--landing-outline-variant);
+
+  --color-landing-text: var(--landing-text);
+  --color-landing-accent: var(--landing-accent);
+  --color-landing-soft-depth-1: var(--landing-soft-depth-1);
+
+  /* Landing radii */
+  --radius-landing: 0.25rem;
+  --radius-landing-lg: 0.5rem;
+  --radius-landing-xl: 0.75rem;
+  --radius-landing-full: 9999px;
+
+  /* Landing spacing */
+  --spacing-landing-margin-mobile: 16px;
+  --spacing-landing-margin-desktop: 40px;
+  --spacing-landing-gutter: 24px;
+  --spacing-landing-unit: 8px;
+  --spacing-landing-container-max: 1200px;
+
+  /* Landing font family */
+  --font-landing-headline-lg: "Roboto", sans-serif;
+  --font-landing-headline-md: "Roboto", sans-serif;
+  --font-landing-headline-lg-mobile: "Roboto", sans-serif;
+  --font-landing-body-lg: "Roboto", sans-serif;
+  --font-landing-body-md: "Roboto", sans-serif;
+  --font-landing-label-md: "Roboto", sans-serif;
+  --font-landing-label-sm: "Roboto", sans-serif;
+  --font-landing-display-lg: "Roboto", sans-serif;
+
+  /* Landing font sizes */
+  --text-landing-headline-lg: 32px;
+  --text-landing-headline-md: 24px;
+  --text-landing-headline-lg-mobile: 28px;
+  --text-landing-body-lg: 18px;
+  --text-landing-body-md: 16px;
+  --text-landing-label-md: 14px;
+  --text-landing-label-sm: 12px;
+  --text-landing-display-lg: 48px;
 }
 
 :root {
@@ -124,5 +176,73 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
+  }
+}
+
+
+.landing-theme {
+  --landing-background: #f4fafd;
+  --landing-primary: #006a66;
+  --landing-primary-container: #20a39e;
+  --landing-secondary: #5c5f60;
+  --landing-surface: #f4fafd;
+  --landing-surface-container: #e8eff1;
+  --landing-surface-container-low: #eef5f7;
+  --landing-surface-container-high: #e2e9ec;
+  --landing-surface-container-highest: #dde4e6;
+  --landing-outline: #6d7a78;
+  --landing-outline-variant: #bcc9c7;
+  --landing-text: #161d1f;
+  --landing-accent: #EF5B5B;
+  --landing-soft-depth-1: oklch(0.967 0.003 264.542);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .material-symbols-outlined {
+    font-variation-settings:
+      "FILL" 0,
+      "wght" 400,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+
+  .organic-shape-1 {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  .organic-shape-2 {
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  }
+}
+
+@layer components {
+  .cta-hover {
+    transition:
+      transform 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .cta-hover:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 24px rgba(239, 91, 91, 0.2);
   }
 }
