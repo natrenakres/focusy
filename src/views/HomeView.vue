@@ -3,7 +3,6 @@ import TheFooter from '@/layout/TheFooter.vue';
 import TheHeader from '../layout/TheHeader.vue';
 import { IconArrowRight, IconSparkles } from '@tabler/icons-vue';
 import FocusyArt from "@/assets/focusy-art.png";
-
 </script>
 <template>
     <TheHeader />
@@ -45,7 +44,7 @@ import FocusyArt from "@/assets/focusy-art.png";
                     <div
                         class="w-full aspect-square max-w-md soft-depth-3 bg-white rounded-[40px] overflow-hidden relative border-4 border-landing-surface-container-low">
                         <div class="w-full h-full bg-cover bg-center">
-                            <img :src="FocusyArt" alt="Focusy art" />
+                             <img :src="FocusyArt" alt="Focusy art" />                             
                         </div>
                         <div
                             class="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm p-6 rounded-2xl soft-depth-2 flex items-center gap-4">

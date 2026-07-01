@@ -15,13 +15,13 @@ const year = new Date().getFullYear();
     </div>
     <div class="flex flex-col md:flex-row items-center gap-12">
       <div class="flex gap-8">
-        <a class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
-          href="#">Privacy</a>
-        <a class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
-          href="#">Terms</a>
-        <a class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
-          href="#">Support</a>
-      </div>      
+        <RouterLink class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
+          to="/docs/privacy">Privacy</RouterLink>
+        <RouterLink class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
+          to="/docs/terms">Terms</RouterLink>
+        <RouterLink class="text-on-secondary-fixed-variant font-landing-label-sm uppercase tracking-widest hover:text-landing-accent transition-colors duration-250 ease-out cursor-pointer"
+          to="/docs/support">Support</RouterLink>
+      </div>
     </div>
     <div class="w-full md:w-auto text-center md:text-right">
       <p class="text-on-secondary-fixed-variant font-landing-label-sm opacity-60">© {{ year }} Focusy. All rights reserved.
