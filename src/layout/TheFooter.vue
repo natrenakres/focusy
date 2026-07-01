@@ -9,8 +9,9 @@ const year = new Date().getFullYear();
     id="contact">
     <div class="flex flex-col items-center md:items-start gap-4">
       <div class="font-landing-headline-md text-landing-headline-md font-bold text-landing-primary">Focusy</div>
-      <p class="text-landing-secondary text-landing-body-md text-center md:text-left max-w-xs">Elevating human consciousness through
-        intentional design and deep focus.</p>
+      <p class="text-landing-secondary text-landing-body-md text-center md:text-left max-w-xs">
+        Reclaim your attention without giving away your data.
+      </p>
     </div>
     <div class="flex flex-col md:flex-row items-center gap-12">
       <div class="flex gap-8">
