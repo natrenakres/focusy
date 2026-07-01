@@ -48,7 +48,6 @@ const route = useRoute();
 const status = ref<DocStatus>("loading");
 const html = ref("");
 const meta = ref<DocMeta>({ title: "" });
-const articleRef = ref<HTMLElement | null>(null);
 
 async function load(slug: string) {
   status.value = "loading";
