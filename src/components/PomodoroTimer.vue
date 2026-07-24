@@ -1,15 +1,17 @@
 <script lang="ts" setup>    
     import usePomodoro from "../features/usePomodoro";    
+    import { useAppSettings } from "@/stores/useAppSettingsStore.ts";
+    const { appSettings } = useAppSettings();
     const emit = defineEmits<{
         (e: "pomodoro-completed"): void;
     }>();
 
     const { status, statePomodoro, formattedTime, handlePomodoroToggle, nextState, setPomodoroState } = usePomodoro({
-        pomodoroTimeSec: import.meta.env.VITE_POMODORO_TIME_SEC,
+        pomodoroTimeSec: () => appSettings.value.pomodoroTimeSec ?? import.meta.env.VITE_POMODORO_TIME_SEC,
         shortBreakTimeSec: import.meta.env.VITE_SHORT_BREAK_TIME_SEC,
         longBreakTimeSec: import.meta.env.VITE_LONG_BREAK_TIME_SEC,
         onPomodoroCompleted: () => emit("pomodoro-completed"),
-    });    
+    });
     import { IconPlayerSkipForward } from "@tabler/icons-vue";
     import Button from "./ui/button/Button.vue";
 </script>

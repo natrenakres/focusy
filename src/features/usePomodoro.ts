@@ -1,4 +1,4 @@
-import { computed, watch } from "vue";
+import { computed, watch, toValue, type MaybeRefOrGetter } from "vue";
 import { useTimestamp, useStorage, useWebNotification, useTitle } from "@vueuse/core";
 import { useSound } from "@vueuse/sound";
 import WarnSound from "@/assets/sounds/warning.wav";
@@ -8,18 +8,13 @@ type PomodoroStatus = "start" | "pause" | "stop";
 type PomodoroState = "pomodoro" | "shortBreak" | "longBreak";
 
 interface PomodoroConfig  {
-  pomodoroTimeSec: number;
-  shortBreakTimeSec: number;
-  longBreakTimeSec: number;
+  pomodoroTimeSec: MaybeRefOrGetter<number>;
+  shortBreakTimeSec: MaybeRefOrGetter<number>;
+  longBreakTimeSec: MaybeRefOrGetter<number>;
   onPomodoroCompleted?: () => void | Promise<void>;
 }
 
 export default function usePomodoro(config?: Partial<PomodoroConfig>){
-    const settings: PomodoroConfig = {
-        pomodoroTimeSec: (config?.pomodoroTimeSec ?? .1) * 60,
-        shortBreakTimeSec: (config?.shortBreakTimeSec ?? 0.1) * 60,
-        longBreakTimeSec: (config?.longBreakTimeSec ?? 0.1) * 60        
-    }
     const onPomodoroCompleted = config?.onPomodoroCompleted;
     const title = useTitle();    
     const status = useStorage<PomodoroStatus>("pomodoro:status", "stop");
@@ -53,11 +48,11 @@ export default function usePomodoro(config?: Partial<PomodoroConfig>){
     const duration = computed(()=> {
         switch(statePomodoro.value) {
             case "shortBreak":
-                return settings.shortBreakTimeSec;
+                return (toValue(config?.shortBreakTimeSec) ?? .1) * 60;
             case "longBreak":
-                return settings.longBreakTimeSec;
+                return (toValue(config?.longBreakTimeSec) ?? .1) * 60;
             default:
-                return settings.pomodoroTimeSec
+                return (toValue(config?.pomodoroTimeSec) ?? .1) * 60;
         }
     });
     
