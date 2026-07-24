@@ -17,6 +17,7 @@ const AppSettingsFormSchema = z.object({
     weeklyHours: z.number().min(1, "Weekly hours must be at least 1"),
     dailyHours: z.number().min(1, "Daily hours must be at least 1"),    
     lunchBreak: z.number().min(0, "Lunch break cannot be negative").max(180, "Lunch break cannot exceed 3 hours"),
+    pomodoroTimeSec: z.number().min(25, "Pomodoro cannot be less than 25min.").max(60, "Pomodoro cannot be more than 1 hour.")
 });
 
 const form = useForm({
@@ -24,11 +25,13 @@ const form = useForm({
         weeklyHours: appSettings.value.weeklyHours,
         dailyHours: appSettings.value.dailyHours,
         lunchBreak: appSettings.value.lunchBreak,
+        pomodoroTimeSec: appSettings.value.pomodoroTimeSec
     },
     validators: {
         onSubmit: AppSettingsFormSchema
     },
     onSubmit: async ({ value } : {value: any}) => {        
+        console.log(value);
         updateAppSettings(value);    
         emit("update:open", false);    
     },
@@ -80,7 +83,22 @@ function isInvalid(field: any) {
                                 autocomplete="off" class="w-full rounded-sm h-8"  />
                             <FieldError v-if="isInvalid(field)"  :errors="field.state.meta.errors" />
                         </template>
-                    </form.Field>                 
+                    </form.Field>   
+                    <form.Field name="pomodoroTimeSec">
+                        <template #default="{ field }">
+                            <FieldLabel :for="field.name">
+                                Pomodoro Timer in Min {{ field.state.value }}:
+                            </FieldLabel>
+                            <Input type="range" :id="field.name" 
+                                :model-value="field.state.value" 
+                                @input="field.handleChange(+$event.target.value)" :name="field.name" 
+                                min="25"
+                                max="60"
+                                step="5"
+                                autocomplete="ioff" class="w-full rounded-sm h-8" />
+                            <FieldError v-if="isInvalid(field)" :errors="field.state.meta.errors" />
+                        </template>
+                    </form.Field>              
                 </FieldGroup>
             </CardContent>
             <CardFooter class="flex justify-end gap-2">
